@@ -6,12 +6,12 @@ interface buttonProps {
 
 export function button(props: buttonProps): HTMLButtonElement {
     const buttonVariant: { [key: string]: string } = {
-        blue: "bg-blue-600 text-neutral-0",
+        blue: "bg-blue-600 hover:bg-blue-400 text-neutral-0",
         light: "bg-neutral-0 text-neutral-900",
         dark: "bg-neutral-800 text-neutral-0",
     };
 
-    const resetIcon = `
+    const resetIcon: string = `
         <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -24,9 +24,14 @@ export function button(props: buttonProps): HTMLButtonElement {
         </svg>
     `;
 
-    const buttonElement = document.createElement("button");
-    buttonElement.className = `${buttonVariant[props.variant] ?? ""} text-lg tracking-wider font-semibold rounded-lg p-4 gap-2 flex flex-row items-center justify-center`;
-    buttonElement.innerHTML = `${props.text}${props.hasTrailing ? resetIcon : ""}`;
+    const buttonElement = document.createElement("template");
+    buttonElement.innerHTML = `
+        <button
+            class="${buttonVariant[props.variant] ?? ""} text-lg tracking-wider font-semibold rounded-lg p-4 gap-2 flex flex-row items-center justify-center cursor-pointer">
+            ${props.text}
+            ${props.hasTrailing ? resetIcon : ""}
+        </button>
+    `.trim();
 
-    return buttonElement;
+    return buttonElement.content.firstChild as HTMLButtonElement;
 }
