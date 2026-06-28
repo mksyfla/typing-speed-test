@@ -4,3 +4,7 @@ export const BREAKPOINTS: { [key: string]: number } = {
     md: 768,
     sm: 640,
 };
+
+export const MEDIA_QUERY: MediaQueryList = window.matchMedia(
+    `(min-width: ${BREAKPOINTS["lg"]}px)`,
+);
