@@ -21,6 +21,9 @@
 }
 
 body {
-    background-color: var(--color-neutral-900);
-    height: 100vh;
+    @apply bg-neutral-900 flex justify-center h-dvh px-4 md:px-6 lg:px-8 xl:px-0;
+}
+
+#app {
+    @apply max-w-300 min-w-90 w-full font-normal text-base text-neutral-0;
 }
