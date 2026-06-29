@@ -1,13 +1,17 @@
+import { MEDIA_QUERY } from "./breakpoint";
+
 export interface stateProps {
     difficulty: number;
     mode: number;
     personalBest: number;
+    isDesktop: boolean;
 }
 
 const initialState: stateProps = {
     difficulty: 0,
     mode: 0,
     personalBest: parseInt(localStorage.getItem("personal-best") ?? "0"),
+    isDesktop: MEDIA_QUERY.matches,
 };
 
 type listener = (state: stateProps) => void;

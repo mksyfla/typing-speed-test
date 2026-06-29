@@ -1,4 +1,5 @@
 import { MEDIA_QUERY } from "../../utils/breakpoint";
+import { stateProps, stateStore } from "../../utils/state";
 import {
     ICON_LOGO_DESKTOP,
     ICON_LOGO_MOBILE,
@@ -28,15 +29,16 @@ export function header(): HTMLElement {
     const spanElement: HTMLSpanElement = document.createElement("span");
     spanElement.className = "text-neutral-500";
 
-    function render(isDesktop: boolean) {
-        const logo: string = isDesktop ? logoIcon.desktop : logoIcon.mobile;
-        const label: string = isDesktop ? "Personal Best: " : "Best: ";
-        const wpmValue: string = localStorage.getItem("personal-best") ?? "0";
+    function render(state: stateProps) {
+        const logo: string = state.isDesktop
+            ? logoIcon.desktop
+            : logoIcon.mobile;
+        const label: string = state.isDesktop ? "Personal Best: " : "Best: ";
 
         spanElement.textContent = label;
 
         paragraphElement.innerHTML = "";
-        paragraphElement.append(spanElement, `${wpmValue} WPM`);
+        paragraphElement.append(spanElement, `${state.personalBest} WPM`);
 
         headingElement.innerHTML = "";
         headingElement.insertAdjacentHTML("beforeend", ICON_PERSONAL_BEST);
@@ -47,11 +49,13 @@ export function header(): HTMLElement {
         headerElement.append(headingElement);
     }
 
+    stateStore.subscribe(render);
+
     MEDIA_QUERY.addEventListener("change", (e: MediaQueryListEvent) => {
-        render(e.matches);
+        stateStore.setState({ isDesktop: e.matches });
     });
 
-    render(MEDIA_QUERY.matches);
+    render(stateStore.getState());
 
     return headerElement;
 }

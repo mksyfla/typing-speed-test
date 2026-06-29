@@ -27,23 +27,23 @@ export function mainHeader(props: mainHeaderProps): HTMLElement {
         statsListElement({ heading: stat.key, value: stat.value }),
     );
 
-    function render(isDesktop: boolean) {
+    function render(state: stateProps) {
         const settingsList: HTMLElement[] = [
             selectionElement({
                 header: "Difficulty",
                 values: ["Easy", "Medium", "Hard"],
-                isDesktop: isDesktop,
+                isDesktop: state.isDesktop,
                 type: "difficulty",
             }),
             selectionElement({
                 header: "Mode",
                 values: ["Timed (60s)", "Passage"],
-                isDesktop: isDesktop,
+                isDesktop: state.isDesktop,
                 type: "mode",
             }),
         ];
 
-        const settingsHeader: HTMLElement = isDesktop
+        const settingsHeader: HTMLElement = state.isDesktop
             ? headerSection({ child: settingsList, classname: "lg:gap-0" })
             : headerSection({ child: settingsList });
 
@@ -51,11 +51,13 @@ export function mainHeader(props: mainHeaderProps): HTMLElement {
         mainHeader.append(headerSection({ child: stats }), settingsHeader);
     }
 
+    stateStore.subscribe(render);
+
     MEDIA_QUERY.addEventListener("change", (e: MediaQueryListEvent) =>
-        render(e.matches),
+        stateStore.setState({ isDesktop: e.matches }),
     );
 
-    render(MEDIA_QUERY.matches);
+    render(stateStore.getState());
 
     return mainHeader;
 }
