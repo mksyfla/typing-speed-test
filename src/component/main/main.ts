@@ -1,3 +1,4 @@
+import { stateStore } from "../../utils/state";
 import { mainFooter } from "./main.footer";
 import { mainHeader } from "./main.header";
 import { mainMain } from "./main.main";
@@ -6,25 +7,17 @@ export function mainElement(): HTMLElement {
     const main: HTMLElement = document.createElement("main");
     main.className = "flex flex-col flex-1 min-h-0";
 
-    function render() {
-        main.append(
-            mainHeader({
-                stats: [
-                    { key: "WMP:", value: "0" },
-                    { key: "Accuracy:", value: "100%" },
-                    { key: "Time:", value: "0:60" },
-                ],
-                difficulty: 0,
-                difficultyList: ["Easy", "Medium", "Hard"],
-                mode: 0,
-                modeList: ["Timed (60s)", "Passage"],
-            }),
-            mainMain(),
-            mainFooter(),
-        );
-    }
+    const header = mainHeader({
+        stats: [
+            { key: "WPM:", value: "0" },
+            { key: "Accuracy:", value: "100%" },
+            { key: "Time:", value: "0:60" },
+        ],
+        difficulty: stateStore.getState().difficulty,
+        mode: stateStore.getState().mode,
+    });
 
-    render();
+    main.append(header, mainMain(), mainFooter());
 
     return main;
 }

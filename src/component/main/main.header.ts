@@ -2,6 +2,7 @@ import { MEDIA_QUERY } from "../../utils/breakpoint";
 import { ICON_ARROW_DOWN } from "../../utils/svg";
 import { button } from "../button";
 import { classnameTypes } from "../../utils/classname.types";
+import { stateProps, stateStore } from "../../utils/state";
 
 interface mainHeaderProps {
     stats: {
@@ -9,9 +10,7 @@ interface mainHeaderProps {
         value: string;
     }[];
     difficulty: number;
-    difficultyList: string[];
     mode: number;
-    modeList: string[];
 }
 
 export function mainHeader(props: mainHeaderProps): HTMLElement {
@@ -31,14 +30,16 @@ export function mainHeader(props: mainHeaderProps): HTMLElement {
     function render(isDesktop: boolean) {
         const settingsList: HTMLElement[] = [
             selectionElement({
-                header: "Difficulty:",
-                values: props.difficultyList,
+                header: "Difficulty",
+                values: ["Easy", "Medium", "Hard"],
                 isDesktop: isDesktop,
+                type: "difficulty",
             }),
             selectionElement({
-                header: "Mode:",
-                values: props.modeList,
+                header: "Mode",
+                values: ["Timed (60s)", "Passage"],
                 isDesktop: isDesktop,
+                type: "mode",
             }),
         ];
 
@@ -106,33 +107,11 @@ function statsListElement(props: statsListElementProps): HTMLElement {
     return statsElement;
 }
 
-interface selectionListElementProps {
-    option: string;
-}
-
-function selectionListElement(props: selectionListElementProps): HTMLElement {
-    const classname: classnameTypes = {
-        base: "px-2 flex gap-3 items-center border-neutral-500 cursor-pointer",
-        desktop: "lg:py-1 lg:border lg:rounded-md lg:before:content-none",
-        mobile: "py-2 not-last:border-b before:size-4 before:border before:rounded-full",
-    };
-
-    const selectionElement: HTMLElement = document.createElement("div");
-    selectionElement.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
-
-    function render() {
-        selectionElement.textContent = props.option;
-    }
-
-    render();
-
-    return selectionElement;
-}
-
 interface selectionElementProps {
     header: string;
     values: string[];
     isDesktop: boolean;
+    type: string;
 }
 
 function selectionElement(props: selectionElementProps): HTMLElement {
@@ -141,15 +120,30 @@ function selectionElement(props: selectionElementProps): HTMLElement {
         ? "flex flex-row items-center gap-2 first:pr-4 last:pl-4 not-last:border-r border-neutral-500"
         : "relative flex-1";
 
-    function render() {
-        const selectionList = props.values.map((value) =>
-            selectionListElement({ option: value }),
+    function render(state: stateProps) {
+        const selected =
+            props.type === "difficulty" ? state.difficulty : state.mode;
+
+        const selectionList = props.values.map((value, index) =>
+            selectionListElement({
+                option: value,
+                selected: index === selected,
+                event: () => {
+                    if (props.type === "difficulty") {
+                        stateStore.setState({ difficulty: index });
+                    } else {
+                        stateStore.setState({ mode: index });
+                    }
+                },
+            }),
         );
+
+        const header: string = selectionList[selected].innerHTML;
 
         if (props.isDesktop) {
             const spanElement: HTMLSpanElement = document.createElement("span");
             spanElement.className = "inline";
-            spanElement.textContent = props.header;
+            spanElement.textContent = props.header + ":";
 
             selectionElement.innerHTML = "";
             selectionElement.append(spanElement, ...selectionList);
@@ -166,7 +160,7 @@ function selectionElement(props: selectionElementProps): HTMLElement {
 
             const buttonDropdown: HTMLButtonElement = button({
                 classname: "w-full px-2 py-1 gap-3 border border-neutral-500",
-                text: props.header,
+                text: header,
                 trailingIcon: ICON_ARROW_DOWN,
                 event: toggleList,
             });
@@ -175,7 +169,30 @@ function selectionElement(props: selectionElementProps): HTMLElement {
         }
     }
 
-    render();
+    stateStore.subscribe(render);
+
+    render(stateStore.getState());
+
+    return selectionElement;
+}
+
+interface selectionListElementProps {
+    option: string;
+    selected: boolean;
+    event: () => void;
+}
+
+function selectionListElement(props: selectionListElementProps): HTMLElement {
+    const classname: classnameTypes = {
+        base: "px-2 flex gap-3 items-center cursor-pointer border-neutral-500",
+        desktop: "lg:py-1 lg:border lg:rounded-md lg:before:content-none",
+        mobile: "py-2 not-last:border-b before:size-4 before:border before:rounded-full",
+    };
+
+    const selectionElement: HTMLElement = document.createElement("div");
+    selectionElement.className = `${props.selected ? "before:border-3 before:border-blue-400 lg:border-blue-400 lg:text-blue-400" : ""} ${classname.base} ${classname.desktop} ${classname.mobile}`;
+    selectionElement.textContent = props.option;
+    selectionElement.addEventListener("click", props.event);
 
     return selectionElement;
 }
