@@ -16,7 +16,7 @@ interface mainHeaderProps {
 
 export function mainHeader(props: mainHeaderProps): HTMLElement {
     const classname: classnameTypes = {
-        base: "pb-4 flex gap-4 border-b border-neutral-500",
+        base: "shrink-0 bg-neutral-900 pb-4 flex gap-4 border-b border-neutral-500",
         desktop: "lg:flex-row lg:justify-between",
         mobile: "flex-col justify-center",
     };

@@ -4,7 +4,7 @@ import { button } from "../button";
 
 export function mainFooter(): HTMLElement {
     const classname: classnameTypes = {
-        base: "flex w-full justify-center items-center border-t border-neutral-500",
+        base: "shrink-0 flex w-full justify-center items-center border-t bg-neutral-900 border-neutral-500",
         desktop: "lg:pt-8 lg:pb-16",
         mobile: "pt-4 pb-8",
     };

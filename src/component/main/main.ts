@@ -1,12 +1,10 @@
 import { mainFooter } from "./main.footer";
 import { mainHeader } from "./main.header";
+import { mainMain } from "./main.main";
 
 export function mainElement(): HTMLElement {
-    const main: HTMLElement = document.createElement("div");
-
-    const mainElement: HTMLElement = document.createElement("div");
-    mainElement.className =
-        "w-full h-900 bg-linear-to-t from-cyan-100 to-blue-900";
+    const main: HTMLElement = document.createElement("main");
+    main.className = "flex flex-col flex-1 min-h-0";
 
     function render() {
         main.append(
@@ -21,7 +19,7 @@ export function mainElement(): HTMLElement {
                 mode: 0,
                 modeList: ["Timed (60s)", "Passage"],
             }),
-            mainElement,
+            mainMain(),
             mainFooter(),
         );
     }
