@@ -1,37 +1,27 @@
+import { SVG_ICON_DATA_TYPES } from "../utils/svg";
+
 interface buttonProps {
     text: string;
-    variant: string;
-    hasTrailing: boolean;
+    classname: string;
+    event: () => void;
+    trailingIcon?: SVG_ICON_DATA_TYPES;
 }
 
 export function button(props: buttonProps): HTMLButtonElement {
-    const buttonVariant: { [key: string]: string } = {
-        blue: "bg-blue-600 hover:bg-blue-400 text-neutral-0",
-        light: "bg-neutral-0 text-neutral-900",
-        dark: "bg-neutral-800 text-neutral-0",
-    };
+    const spanElement: HTMLSpanElement = document.createElement("span");
+    spanElement.className = "inline";
+    spanElement.textContent = props.text;
 
-    const resetIcon: string = `
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="none"
-            viewBox="0 0 20 20">
-            <path class=${props.variant === "light" ? "fill-neutral-900" : "fill-neutral-0"}
-                fill="#fff"
-                d="M1.563 1.281h.949c.246 0 .422.211.422.457l-.07 3.446a8.6 8.6 0 0 1 7.277-3.868c4.816 0 8.718 3.938 8.718 8.72-.035 4.816-3.937 8.683-8.718 8.683a8.86 8.86 0 0 1-5.871-2.215.446.446 0 0 1 0-.633l.703-.703c.14-.14.386-.14.562 0 1.23 1.09 2.813 1.723 4.606 1.723A6.88 6.88 0 0 0 17.03 10c0-3.797-3.093-6.89-6.89-6.89-2.813 0-5.203 1.687-6.293 4.078l4.43-.106c.245 0 .456.176.456.422v.95c0 .245-.21.421-.421.421h-6.75a.406.406 0 0 1-.422-.422v-6.75c0-.21.175-.422.422-.422"/>
-        </svg>
-    `;
+    const buttonElement = document.createElement("button");
+    buttonElement.className = `${props.classname} font-semibold rounded-lg flex flex-row items-center justify-center cursor-pointer`;
+    buttonElement.append(spanElement);
+    buttonElement.insertAdjacentHTML("beforeend", props.trailingIcon ?? "");
 
-    const buttonElement = document.createElement("template");
     buttonElement.innerHTML = `
-        <button
-            class="${buttonVariant[props.variant] ?? ""} text-lg tracking-wider font-semibold rounded-lg p-4 gap-2 flex flex-row items-center justify-center cursor-pointer">
-            ${props.text}
-            ${props.hasTrailing ? resetIcon : ""}
-        </button>
-    `.trim();
+        <span class="inline">${props.text}</span>
+        ${props.trailingIcon ?? ""}
+    `;
+    buttonElement.addEventListener("click", props.event);
 
-    return buttonElement.content.firstChild as HTMLButtonElement;
+    return buttonElement;
 }
