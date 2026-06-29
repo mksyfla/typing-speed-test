@@ -17,7 +17,7 @@ export function mainFooter(): HTMLElement {
             console.log(mainFooter);
         }
 
-        const buttonRefresh = button({
+        const buttonRefresh: HTMLButtonElement = button({
             classname:
                 "p-4 bg-neutral-800 text-lg tracking-wider text-neutral-0 gap-2",
             text: "Restart Test",

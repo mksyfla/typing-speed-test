@@ -16,7 +16,8 @@ export function header(): HTMLElement {
     };
 
     const headerElement: HTMLElement = document.createElement("header");
-    headerElement.className = "flex justify-between items-center pt-8";
+    headerElement.className =
+        "flex justify-between items-center pt-8 mb-8 lg:mb-16";
 
     const headingElement: HTMLDivElement = document.createElement("div");
     headingElement.className = "flex gap-2 items-center justify-end";

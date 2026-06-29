@@ -12,7 +12,7 @@ export function button(props: buttonProps): HTMLButtonElement {
     spanElement.className = "inline";
     spanElement.textContent = props.text;
 
-    const buttonElement = document.createElement("button");
+    const buttonElement: HTMLButtonElement = document.createElement("button");
     buttonElement.className = `${props.classname} font-semibold rounded-lg flex flex-row items-center justify-center cursor-pointer`;
     buttonElement.append(spanElement);
     buttonElement.insertAdjacentHTML("beforeend", props.trailingIcon ?? "");

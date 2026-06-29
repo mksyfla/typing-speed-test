@@ -1,4 +1,9 @@
-export const BREAKPOINTS: { [key: string]: number } = {
+export const BREAKPOINTS: {
+    xl: number;
+    lg: number;
+    md: number;
+    sm: number;
+} = {
     xl: 1280,
     lg: 1024,
     md: 768,
@@ -6,5 +11,5 @@ export const BREAKPOINTS: { [key: string]: number } = {
 };
 
 export const MEDIA_QUERY: MediaQueryList = window.matchMedia(
-    `(min-width: ${BREAKPOINTS["lg"]}px)`,
+    `(min-width: ${BREAKPOINTS.lg}px)`,
 );
