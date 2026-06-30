@@ -22,6 +22,7 @@ export function header(): HTMLElement {
 
     const headingElement: HTMLDivElement = document.createElement("div");
     headingElement.className = "flex gap-2 items-center justify-end";
+    headingElement.insertAdjacentHTML("beforeend", ICON_PERSONAL_BEST);
 
     const paragraphElement: HTMLParagraphElement = document.createElement("p");
     paragraphElement.className = "flex gap-1";
@@ -41,11 +42,10 @@ export function header(): HTMLElement {
         paragraphElement.append(spanElement, `${state.personalBest} WPM`);
 
         headingElement.innerHTML = "";
-        headingElement.insertAdjacentHTML("beforeend", ICON_PERSONAL_BEST);
         headingElement.append(paragraphElement);
 
         headerElement.innerHTML = "";
-        headerElement.insertAdjacentHTML("beforeend", logo);
+        headerElement.insertAdjacentHTML("afterbegin", logo);
         headerElement.append(headingElement);
     }
 

@@ -13,14 +13,12 @@ export function button(props: buttonProps): HTMLButtonElement {
     spanElement.textContent = props.text;
 
     const buttonElement: HTMLButtonElement = document.createElement("button");
-    buttonElement.className = `${props.classname} font-semibold rounded-lg flex flex-row items-center justify-center cursor-pointer`;
+    buttonElement.className = `
+        ${props.classname}
+        font-semibold rounded-lg flex flex-row items-center justify-center cursor-pointer
+    `;
     buttonElement.append(spanElement);
     buttonElement.insertAdjacentHTML("beforeend", props.trailingIcon ?? "");
-
-    buttonElement.innerHTML = `
-        <span class="inline">${props.text}</span>
-        ${props.trailingIcon ?? ""}
-    `;
     buttonElement.addEventListener("click", props.event);
 
     return buttonElement;

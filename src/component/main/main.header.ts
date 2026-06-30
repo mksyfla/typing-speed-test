@@ -9,8 +9,6 @@ interface mainHeaderProps {
         key: string;
         value: string;
     }[];
-    difficulty: number;
-    mode: number;
 }
 
 export function mainHeader(props: mainHeaderProps): HTMLElement {
@@ -23,54 +21,46 @@ export function mainHeader(props: mainHeaderProps): HTMLElement {
     const mainHeader: HTMLElement = document.createElement("div");
     mainHeader.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
 
-    const stats = props.stats.map((stat) =>
+    const stats: HTMLElement[] = props.stats.map((stat) =>
         statsListElement({ heading: stat.key, value: stat.value }),
     );
 
-    function render(state: stateProps) {
-        const settingsList: HTMLElement[] = [
-            selectionElement({
-                header: "Difficulty",
-                values: ["Easy", "Medium", "Hard"],
-                isDesktop: state.isDesktop,
-                type: "difficulty",
-            }),
-            selectionElement({
-                header: "Mode",
-                values: ["Timed (60s)", "Passage"],
-                isDesktop: state.isDesktop,
-                type: "mode",
-            }),
-        ];
+    const settingsList: HTMLElement[] = [
+        selectionElement({
+            header: "Difficulty",
+            values: ["Easy", "Medium", "Hard"],
+        }),
+        selectionElement({
+            header: "Mode",
+            values: ["Timed (60s)", "Passage"],
+        }),
+    ];
 
-        const settingsHeader: HTMLElement = state.isDesktop
-            ? headerSection({ child: settingsList, classname: "lg:gap-0" })
-            : headerSection({ child: settingsList });
-
-        mainHeader.innerHTML = "";
-        mainHeader.append(headerSection({ child: stats }), settingsHeader);
-    }
-
-    stateStore.subscribe(render);
-
-    MEDIA_QUERY.addEventListener("change", (e: MediaQueryListEvent) =>
-        stateStore.setState({ isDesktop: e.matches }),
+    mainHeader.append(
+        headerSection({ child: stats }),
+        headerSection({ child: settingsList }),
     );
-
-    render(stateStore.getState());
 
     return mainHeader;
 }
 
 interface headerSectionProps {
     child: HTMLElement[];
-    classname?: string;
 }
 
 function headerSection(props: headerSectionProps): HTMLElement {
     const headerSection: HTMLElement = document.createElement("div");
-    headerSection.className = `${props.classname ?? ""} flex flex-row gap-4 w-full lg:w-fit`;
-    headerSection.append(...props.child);
+
+    function render(state: stateProps) {
+        headerSection.className = `${state.isDesktop ? "lg:gap-0" : ""} flex flex-row gap-4 w-full lg:w-fit`;
+        headerSection.append(...props.child);
+    }
+
+    MEDIA_QUERY.addEventListener("change", (e: MediaQueryListEvent) =>
+        stateStore.setState({ isDesktop: e.matches }),
+    );
+
+    render(stateStore.getState());
 
     return headerSection;
 }
@@ -92,19 +82,13 @@ function statsListElement(props: statsListElementProps): HTMLElement {
 
     const headingElement: HTMLHeadingElement = document.createElement("h3");
     headingElement.className = "text-neutral-500 lg:text-xl";
+    headingElement.textContent = props.heading;
 
-    const paragraphElement: HTMLParagraphElement = document.createElement("h3");
+    const paragraphElement: HTMLParagraphElement = document.createElement("p");
     paragraphElement.className = "font-bold text-2xl";
+    paragraphElement.textContent = props.value;
 
-    function render() {
-        headingElement.textContent = props.heading;
-        paragraphElement.textContent = props.value;
-
-        statsElement.innerHTML = "";
-        statsElement.append(headingElement, paragraphElement);
-    }
-
-    render();
+    statsElement.append(headingElement, paragraphElement);
 
     return statsElement;
 }
@@ -112,26 +96,50 @@ function statsListElement(props: statsListElementProps): HTMLElement {
 interface selectionElementProps {
     header: string;
     values: string[];
-    isDesktop: boolean;
-    type: string;
 }
 
 function selectionElement(props: selectionElementProps): HTMLElement {
     const selectionElement: HTMLElement = document.createElement("div");
-    selectionElement.className = props.isDesktop
-        ? "flex flex-row items-center gap-2 first:pr-4 last:pl-4 not-last:border-r border-neutral-500"
-        : "relative flex-1";
+
+    const spanElement: HTMLSpanElement = document.createElement("span");
+    spanElement.className = "inline";
+    spanElement.textContent = props.header + ":";
+
+    const listContainer: HTMLDivElement = document.createElement("div");
+    listContainer.className =
+        // "absolute w-full bg-neutral-800 rounded-lg mt-2 hidden";
+        "absolute w-full bg-neutral-800 rounded-lg mt-2";
+
+    let isDropdownDown: boolean = false;
+
+    const buttonDropdown: HTMLButtonElement = button({
+        classname: "w-full px-2 py-1 gap-3 border border-neutral-500",
+        text: "",
+        trailingIcon: ICON_ARROW_DOWN,
+        event: toggleList,
+    });
+
+    function toggleList() {
+        isDropdownDown = !isDropdownDown;
+        render(stateStore.getState());
+        // listContainer.classList.toggle("hidden");
+    }
+
+    const type = props.header.toLowerCase();
 
     function render(state: stateProps) {
-        const selected =
-            props.type === "difficulty" ? state.difficulty : state.mode;
+        selectionElement.className = state.isDesktop
+            ? "flex flex-row items-center gap-2 first:pr-4 last:pl-4 not-last:border-r border-neutral-500"
+            : "relative flex-1";
+
+        const selected = type === "difficulty" ? state.difficulty : state.mode;
 
         const selectionList = props.values.map((value, index) =>
             selectionListElement({
                 option: value,
                 selected: index === selected,
                 event: () => {
-                    if (props.type === "difficulty") {
+                    if (type === "difficulty") {
                         stateStore.setState({ difficulty: index });
                     } else {
                         stateStore.setState({ mode: index });
@@ -140,38 +148,31 @@ function selectionElement(props: selectionElementProps): HTMLElement {
             }),
         );
 
-        const header: string = selectionList[selected].innerHTML;
-
-        if (props.isDesktop) {
-            const spanElement: HTMLSpanElement = document.createElement("span");
-            spanElement.className = "inline";
-            spanElement.textContent = props.header + ":";
+        if (state.isDesktop) {
+            isDropdownDown = false;
 
             selectionElement.innerHTML = "";
             selectionElement.append(spanElement, ...selectionList);
         } else {
-            const listContainer: HTMLDivElement = document.createElement("div");
-            listContainer.className =
-                "absolute w-full bg-neutral-800 rounded-lg mt-2 hidden";
+            if (isDropdownDown) listContainer.classList.remove("hidden");
+            else listContainer.classList.add("hidden");
+
             listContainer.innerHTML = "";
             listContainer.append(...selectionList);
 
-            function toggleList() {
-                listContainer.classList.toggle("hidden");
-            }
+            buttonDropdown.children[0].textContent =
+                selectionList[selected].innerHTML;
 
-            const buttonDropdown: HTMLButtonElement = button({
-                classname: "w-full px-2 py-1 gap-3 border border-neutral-500",
-                text: header,
-                trailingIcon: ICON_ARROW_DOWN,
-                event: toggleList,
-            });
             selectionElement.innerHTML = "";
             selectionElement.append(buttonDropdown, listContainer);
         }
     }
 
     stateStore.subscribe(render);
+
+    MEDIA_QUERY.addEventListener("change", (e: MediaQueryListEvent) =>
+        stateStore.setState({ isDesktop: e.matches }),
+    );
 
     render(stateStore.getState());
 
@@ -192,7 +193,12 @@ function selectionListElement(props: selectionListElementProps): HTMLElement {
     };
 
     const selectionElement: HTMLElement = document.createElement("div");
-    selectionElement.className = `${props.selected ? "before:border-3 before:border-blue-400 lg:border-blue-400 lg:text-blue-400" : ""} ${classname.base} ${classname.desktop} ${classname.mobile}`;
+    selectionElement.className = `
+        ${props.selected ? "before:border-4 before:border-blue-400 lg:border-blue-400 lg:text-blue-400" : ""}
+        ${classname.base}
+        ${classname.desktop}
+        ${classname.mobile}
+    `;
     selectionElement.textContent = props.option;
     selectionElement.addEventListener("click", props.event);
 

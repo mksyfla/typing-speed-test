@@ -9,25 +9,18 @@ export function mainFooter(): HTMLElement {
         mobile: "pt-4 pb-8",
     };
 
-    const mainFooter: HTMLElement = document.createElement("div");
-    mainFooter.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
+    const mainFooterElement: HTMLElement = document.createElement("div");
+    mainFooterElement.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
 
-    function render() {
-        function toggleList() {
-            console.log(mainFooter);
-        }
+    const buttonRefresh: HTMLButtonElement = button({
+        classname:
+            "p-4 bg-neutral-800 text-lg tracking-wider text-neutral-0 gap-2",
+        text: "Restart Test",
+        trailingIcon: ICON_RESTART(false),
+        event: () => console.log(mainFooterElement),
+    });
 
-        const buttonRefresh: HTMLButtonElement = button({
-            classname:
-                "p-4 bg-neutral-800 text-lg tracking-wider text-neutral-0 gap-2",
-            text: "Restart Test",
-            trailingIcon: ICON_RESTART(false),
-            event: toggleList,
-        });
-        mainFooter.append(buttonRefresh);
-    }
+    mainFooterElement.append(buttonRefresh);
 
-    render();
-
-    return mainFooter;
+    return mainFooterElement;
 }

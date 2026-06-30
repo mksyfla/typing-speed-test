@@ -42,8 +42,12 @@ function store() {
 
             listeners.forEach((listener: listener) => listener(state));
         },
-        subscribe(listener: listener): void {
+        subscribe(listener: listener): () => void {
             listeners.add(listener);
+
+            return () => {
+                listeners.delete(listener);
+            };
         },
     };
 }
