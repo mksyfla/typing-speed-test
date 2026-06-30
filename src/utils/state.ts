@@ -14,7 +14,7 @@ const initialState: stateProps = {
     isDesktop: MEDIA_QUERY.matches,
 };
 
-type listener = (state: stateProps) => void;
+type listener = (state: stateProps, description: string) => void;
 
 function store() {
     let state: stateProps = initialState;
@@ -24,7 +24,7 @@ function store() {
         getState(): stateProps {
             return state;
         },
-        setState(newState: Partial<stateProps>): void {
+        setState(newState: Partial<stateProps>, description: string): void {
             state = {
                 ...state,
                 ...newState,
@@ -40,7 +40,9 @@ function store() {
                 );
             }
 
-            listeners.forEach((listener: listener) => listener(state));
+            listeners.forEach((listener: listener) =>
+                listener(state, description),
+            );
         },
         subscribe(listener: listener): () => void {
             listeners.add(listener);
@@ -48,6 +50,9 @@ function store() {
             return () => {
                 listeners.delete(listener);
             };
+        },
+        getListener() {
+            console.log(listeners);
         },
     };
 }

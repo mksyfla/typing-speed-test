@@ -1,4 +1,5 @@
 import { classnameTypes } from "../../utils/classname.types";
+import { stateStore } from "../../utils/state";
 import { ICON_RESTART } from "../../utils/svg";
 import { button } from "../button";
 
@@ -17,7 +18,8 @@ export function mainFooter(): HTMLElement {
             "p-4 bg-neutral-800 text-lg tracking-wider text-neutral-0 gap-2",
         text: "Restart Test",
         trailingIcon: ICON_RESTART(false),
-        event: () => console.log(mainFooterElement),
+        // event: () => console.log(mainFooterElement),
+        event: () => stateStore.getListener(),
     });
 
     mainFooterElement.append(buttonRefresh);

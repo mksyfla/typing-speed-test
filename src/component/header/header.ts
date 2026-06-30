@@ -1,4 +1,3 @@
-import { MEDIA_QUERY } from "../../utils/breakpoint";
 import { stateProps, stateStore } from "../../utils/state";
 import {
     ICON_LOGO_DESKTOP,
@@ -30,7 +29,8 @@ export function header(): HTMLElement {
     const spanElement: HTMLSpanElement = document.createElement("span");
     spanElement.className = "text-neutral-500";
 
-    function render(state: stateProps) {
+    function render(state: stateProps, description: string) {
+        console.log("render header", description);
         const logo: string = state.isDesktop
             ? logoIcon.desktop
             : logoIcon.mobile;
@@ -51,11 +51,7 @@ export function header(): HTMLElement {
 
     stateStore.subscribe(render);
 
-    MEDIA_QUERY.addEventListener("change", (e: MediaQueryListEvent) => {
-        stateStore.setState({ isDesktop: e.matches });
-    });
-
-    render(stateStore.getState());
+    render(stateStore.getState(), "Initialization");
 
     return headerElement;
 }

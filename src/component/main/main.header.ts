@@ -1,4 +1,3 @@
-import { MEDIA_QUERY } from "../../utils/breakpoint";
 import { ICON_ARROW_DOWN } from "../../utils/svg";
 import { button } from "../button";
 import { classnameTypes } from "../../utils/classname.types";
@@ -38,7 +37,7 @@ export function mainHeader(props: mainHeaderProps): HTMLElement {
 
     mainHeader.append(
         headerSection({ child: stats }),
-        headerSection({ child: settingsList }),
+        headerSection({ child: settingsList, classname: "gap-4 lg:gap-0" }),
     );
 
     return mainHeader;
@@ -46,21 +45,13 @@ export function mainHeader(props: mainHeaderProps): HTMLElement {
 
 interface headerSectionProps {
     child: HTMLElement[];
+    classname?: string;
 }
 
 function headerSection(props: headerSectionProps): HTMLElement {
     const headerSection: HTMLElement = document.createElement("div");
-
-    function render(state: stateProps) {
-        headerSection.className = `${state.isDesktop ? "lg:gap-0" : ""} flex flex-row gap-4 w-full lg:w-fit`;
-        headerSection.append(...props.child);
-    }
-
-    MEDIA_QUERY.addEventListener("change", (e: MediaQueryListEvent) =>
-        stateStore.setState({ isDesktop: e.matches }),
-    );
-
-    render(stateStore.getState());
+    headerSection.append(...props.child);
+    headerSection.className = `${props.classname ?? ""} flex flex-row w-full lg:w-fit`;
 
     return headerSection;
 }
@@ -121,13 +112,15 @@ function selectionElement(props: selectionElementProps): HTMLElement {
 
     function toggleList() {
         isDropdownDown = !isDropdownDown;
-        render(stateStore.getState());
+        render(stateStore.getState(), "toggle selector list");
         // listContainer.classList.toggle("hidden");
     }
 
     const type = props.header.toLowerCase();
 
-    function render(state: stateProps) {
+    function render(state: stateProps, description: string) {
+        console.log("render selectionElement", description);
+
         selectionElement.className = state.isDesktop
             ? "flex flex-row items-center gap-2 first:pr-4 last:pl-4 not-last:border-r border-neutral-500"
             : "relative flex-1";
@@ -140,9 +133,15 @@ function selectionElement(props: selectionElementProps): HTMLElement {
                 selected: index === selected,
                 event: () => {
                     if (type === "difficulty") {
-                        stateStore.setState({ difficulty: index });
+                        stateStore.setState(
+                            { difficulty: index },
+                            `select difficulty to ${index}`,
+                        );
                     } else {
-                        stateStore.setState({ mode: index });
+                        stateStore.setState(
+                            { mode: index },
+                            `select mode to ${index}`,
+                        );
                     }
                 },
             }),
@@ -170,11 +169,7 @@ function selectionElement(props: selectionElementProps): HTMLElement {
 
     stateStore.subscribe(render);
 
-    MEDIA_QUERY.addEventListener("change", (e: MediaQueryListEvent) =>
-        stateStore.setState({ isDesktop: e.matches }),
-    );
-
-    render(stateStore.getState());
+    render(stateStore.getState(), "Initialization");
 
     return selectionElement;
 }
