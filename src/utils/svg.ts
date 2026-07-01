@@ -84,6 +84,7 @@ export const ICON_ARROW_DOWN: SVG_ICON_DATA_TYPES = `
 
 export const ICON_PERSONAL_BEST: SVG_ICON_DATA_TYPES = `
     <svg
+        class="h-3 w-fit"
         xmlns="http://www.w3.org/2000/svg"
         width="21"
         height="18"
@@ -98,6 +99,7 @@ export const ICON_PERSONAL_BEST: SVG_ICON_DATA_TYPES = `
 export const ICON_RESTART = (isLight: boolean): SVG_ICON_DATA_TYPES => {
     return `
         <svg
+            class="h-4 w-fit"
             xmlns="http://www.w3.org/2000/svg"
             width="20"
             height="20"
@@ -112,6 +114,7 @@ export const ICON_RESTART = (isLight: boolean): SVG_ICON_DATA_TYPES => {
 
 export const ICON_LOGO_DESKTOP: SVG_ICON_DATA_TYPES = `
     <svg
+        class="h-8 w-fit"
         xmlns="http://www.w3.org/2000/svg"
         width="267"
         height="40"
@@ -147,6 +150,7 @@ export const ICON_LOGO_DESKTOP: SVG_ICON_DATA_TYPES = `
 
 export const ICON_LOGO_MOBILE: SVG_ICON_DATA_TYPES = `
     <svg
+        class="h-6 w-fit"
         xmlns="http://www.w3.org/2000/svg"
         width="32"
         height="32"

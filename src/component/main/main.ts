@@ -4,7 +4,7 @@ import { mainMain } from "./main.main";
 
 export function mainElement(): HTMLElement {
     const main: HTMLElement = document.createElement("main");
-    main.className = "flex flex-col flex-1 min-h-0";
+    main.className = "flex min-h-0 flex-1 flex-col";
 
     const header = mainHeader({
         stats: [

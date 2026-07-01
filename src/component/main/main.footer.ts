@@ -5,9 +5,9 @@ import { button } from "../button";
 
 export function mainFooter(): HTMLElement {
     const classname: classnameTypes = {
-        base: "shrink-0 flex w-full justify-center items-center border-t bg-neutral-900 border-neutral-500",
-        desktop: "lg:pt-8 lg:pb-16",
-        mobile: "pt-4 pb-8",
+        base: "flex w-full shrink-0 items-center justify-center border-t border-neutral-500 bg-neutral-900",
+        desktop: "lg:pt-4 lg:pb-8",
+        mobile: "p-4",
     };
 
     const mainFooterElement: HTMLElement = document.createElement("div");
@@ -15,7 +15,7 @@ export function mainFooter(): HTMLElement {
 
     const buttonRefresh: HTMLButtonElement = button({
         classname:
-            "p-4 bg-neutral-800 text-lg tracking-wider text-neutral-0 gap-2",
+            "text-neutral-0 gap-2 bg-neutral-800 p-4 text-sm font-semibold tracking-wider",
         text: "Restart Test",
         trailingIcon: ICON_RESTART(false),
         // event: () => console.log(mainFooterElement),

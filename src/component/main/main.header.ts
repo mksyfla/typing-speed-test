@@ -12,7 +12,7 @@ interface mainHeaderProps {
 
 export function mainHeader(props: mainHeaderProps): HTMLElement {
     const classname: classnameTypes = {
-        base: "shrink-0 bg-neutral-900 pb-4 flex gap-4 border-b border-neutral-500",
+        base: "flex shrink-0 gap-2 border-b border-neutral-500 bg-neutral-900 pb-2",
         desktop: "lg:flex-row lg:justify-between",
         mobile: "flex-col justify-center",
     };
@@ -37,7 +37,7 @@ export function mainHeader(props: mainHeaderProps): HTMLElement {
 
     mainHeader.append(
         headerSection({ child: stats }),
-        headerSection({ child: settingsList, classname: "gap-4 lg:gap-0" }),
+        headerSection({ child: settingsList, classname: "gap-2 lg:gap-0" }),
     );
 
     return mainHeader;
@@ -49,9 +49,15 @@ interface headerSectionProps {
 }
 
 function headerSection(props: headerSectionProps): HTMLElement {
+    const classname: classnameTypes = {
+        base: "flex flex-row",
+        desktop: "lg:w-fit",
+        mobile: "w-full",
+    };
+
     const headerSection: HTMLElement = document.createElement("div");
     headerSection.append(...props.child);
-    headerSection.className = `${props.classname ?? ""} flex flex-row w-full lg:w-fit`;
+    headerSection.className = `${props.classname ?? ""} ${classname.base} ${classname.desktop} ${classname.mobile}`;
 
     return headerSection;
 }
@@ -63,8 +69,8 @@ interface statsListElementProps {
 
 function statsListElement(props: statsListElementProps): HTMLElement {
     const classname: classnameTypes = {
-        base: "flex flex-1 gap-1 not-last:border-r border-neutral-500 items-center",
-        desktop: "lg:flex-row lg:px-6 lg:first:pl-0 lg:last:pr-0",
+        base: "flex flex-1 items-center gap-1 border-neutral-500 not-last:border-r",
+        desktop: "lg:flex-row lg:px-4 lg:first:pl-0 lg:last:pr-0",
         mobile: "flex-col",
     };
 
@@ -72,11 +78,11 @@ function statsListElement(props: statsListElementProps): HTMLElement {
     statsElement.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
 
     const headingElement: HTMLHeadingElement = document.createElement("h3");
-    headingElement.className = "text-neutral-500 lg:text-xl";
+    headingElement.className = "text-sm text-neutral-500 lg:text-base";
     headingElement.textContent = props.heading;
 
     const paragraphElement: HTMLParagraphElement = document.createElement("p");
-    paragraphElement.className = "font-bold text-2xl";
+    paragraphElement.className = "text-lg font-bold lg:text-xl";
     paragraphElement.textContent = props.value;
 
     statsElement.append(headingElement, paragraphElement);
@@ -90,21 +96,28 @@ interface selectionElementProps {
 }
 
 function selectionElement(props: selectionElementProps): HTMLElement {
+    const classname: classnameTypes = {
+        base: "",
+        desktop:
+            "lg:flex lg:flex-none lg:flex-row lg:items-center lg:gap-2 lg:border-neutral-500 lg:not-last:border-r lg:first:pr-4 lg:last:pl-4",
+        mobile: "relative flex-1",
+    };
+
     const selectionElement: HTMLElement = document.createElement("div");
+    selectionElement.className = `${classname.desktop} ${classname.mobile}`;
 
     const spanElement: HTMLSpanElement = document.createElement("span");
-    spanElement.className = "inline";
+    spanElement.className = "inline text-neutral-500";
     spanElement.textContent = props.header + ":";
 
     const listContainer: HTMLDivElement = document.createElement("div");
-    listContainer.className =
-        // "absolute w-full bg-neutral-800 rounded-lg mt-2 hidden";
-        "absolute w-full bg-neutral-800 rounded-lg mt-2";
+    listContainer.className = "absolute mt-1 w-full rounded-lg bg-neutral-800";
 
     let isDropdownDown: boolean = false;
 
     const buttonDropdown: HTMLButtonElement = button({
-        classname: "w-full px-2 py-1 gap-3 border border-neutral-500",
+        classname:
+            "w-full gap-2 border border-neutral-500 px-2 py-1 text-sm font-normal",
         text: "",
         trailingIcon: ICON_ARROW_DOWN,
         event: toggleList,
@@ -113,7 +126,6 @@ function selectionElement(props: selectionElementProps): HTMLElement {
     function toggleList() {
         isDropdownDown = !isDropdownDown;
         render(stateStore.getState(), "toggle selector list");
-        // listContainer.classList.toggle("hidden");
     }
 
     const type = props.header.toLowerCase();
@@ -121,11 +133,8 @@ function selectionElement(props: selectionElementProps): HTMLElement {
     function render(state: stateProps, description: string) {
         console.log("render selectionElement", description);
 
-        selectionElement.className = state.isDesktop
-            ? "flex flex-row items-center gap-2 first:pr-4 last:pl-4 not-last:border-r border-neutral-500"
-            : "relative flex-1";
-
-        const selected = type === "difficulty" ? state.difficulty : state.mode;
+        const selected: number =
+            type === "difficulty" ? state.difficulty : state.mode;
 
         const selectionList = props.values.map((value, index) =>
             selectionListElement({
@@ -182,18 +191,15 @@ interface selectionListElementProps {
 
 function selectionListElement(props: selectionListElementProps): HTMLElement {
     const classname: classnameTypes = {
-        base: "px-2 flex gap-3 items-center cursor-pointer border-neutral-500",
-        desktop: "lg:py-1 lg:border lg:rounded-md lg:before:content-none",
-        mobile: "py-2 not-last:border-b before:size-4 before:border before:rounded-full",
+        base: "flex cursor-pointer items-center gap-2 border-neutral-500 px-2",
+        desktop:
+            "lg:rounded-md lg:border lg:py-1 lg:text-base lg:before:content-none",
+        mobile: "py-2 text-sm not-last:border-b before:size-3 before:rounded-full before:border",
     };
 
     const selectionElement: HTMLElement = document.createElement("div");
-    selectionElement.className = `
-        ${props.selected ? "before:border-4 before:border-blue-400 lg:border-blue-400 lg:text-blue-400" : ""}
-        ${classname.base}
-        ${classname.desktop}
-        ${classname.mobile}
-    `;
+    selectionElement.className = `${props.selected ? "before:border-3 before:border-blue-400 lg:border-blue-400 lg:text-blue-400" : ""} ${classname.base} ${classname.desktop} ${classname.mobile}`;
+    // selectionElement.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
     selectionElement.textContent = props.option;
     selectionElement.addEventListener("click", props.event);
 

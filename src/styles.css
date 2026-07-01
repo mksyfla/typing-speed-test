@@ -22,14 +22,14 @@
 
 html,
 body {
-    @apply h-full;
+    @apply h-full bg-neutral-900;
 }
 
 body {
-    @apply flex h-dvh justify-center bg-neutral-900 px-4 md:px-6 lg:px-8 xl:px-0;
+    @apply font-display flex h-dvh justify-center px-4 md:px-6 lg:px-8 xl:px-0;
 }
 
 #app {
     @apply text-neutral-0 w-full max-w-300 min-w-90 text-base font-normal;
-    @apply flex h-full flex-col;
+    @apply flex flex-col;
 }

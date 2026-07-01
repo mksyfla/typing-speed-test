@@ -17,36 +17,34 @@ export function header(): HTMLElement {
 
     const headerElement: HTMLElement = document.createElement("header");
     headerElement.className =
-        "shrink-0 bg-neutral-900 flex justify-between items-center pt-8 mb-8 lg:mb-16";
+        "mb-4 flex shrink-0 items-center justify-between bg-neutral-900 pt-4 lg:mb-8 lg:pt-6";
 
     const headingElement: HTMLDivElement = document.createElement("div");
-    headingElement.className = "flex gap-2 items-center justify-end";
-    headingElement.insertAdjacentHTML("beforeend", ICON_PERSONAL_BEST);
+    headingElement.className = "flex items-center justify-end gap-2";
 
     const paragraphElement: HTMLParagraphElement = document.createElement("p");
-    paragraphElement.className = "flex gap-1";
+    paragraphElement.className = "flex gap-1 text-sm lg:text-base";
 
     const spanElement: HTMLSpanElement = document.createElement("span");
     spanElement.className = "text-neutral-500";
+    const logoContainer = document.createElement("div");
+
+    paragraphElement.append(spanElement, "0 WPM");
+    headingElement.insertAdjacentHTML("beforeend", ICON_PERSONAL_BEST);
+    headingElement.append(paragraphElement);
+    headerElement.append(logoContainer, headingElement);
 
     function render(state: stateProps, description: string) {
-        console.log("render header", description);
         const logo: string = state.isDesktop
             ? logoIcon.desktop
             : logoIcon.mobile;
-        const label: string = state.isDesktop ? "Personal Best: " : "Best: ";
 
-        spanElement.textContent = label;
-
-        paragraphElement.innerHTML = "";
-        paragraphElement.append(spanElement, `${state.personalBest} WPM`);
-
-        headingElement.innerHTML = "";
-        headingElement.append(paragraphElement);
-
-        headerElement.innerHTML = "";
-        headerElement.insertAdjacentHTML("afterbegin", logo);
-        headerElement.append(headingElement);
+        logoContainer.innerHTML = logo;
+        spanElement.textContent = state.isDesktop
+            ? "Personal Best: "
+            : "Best: ";
+        if (paragraphElement.lastChild)
+            paragraphElement.lastChild.textContent = `${state.personalBest} WPM`;
     }
 
     stateStore.subscribe(render);
