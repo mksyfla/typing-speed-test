@@ -14,37 +14,24 @@ const initialState: stateProps = {
     isDesktop: MEDIA_QUERY.matches,
 };
 
-type listener = (state: stateProps, description: string) => void;
+type listener<T> = (state: T, description?: string) => void;
 
-function store() {
-    let state: stateProps = initialState;
-    const listeners = new Set<listener>();
+export function store<T>(state: T) {
+    const listeners = new Set<listener<T>>();
 
     return {
-        getState(): stateProps {
+        getState(): T {
             return state;
         },
-        setState(newState: Partial<stateProps>, description: string): void {
+        setState(newState: Partial<T>, description?: string): void {
             state = {
                 ...state,
                 ...newState,
             };
 
-            const localPersonalBest: number = parseInt(
-                localStorage.getItem("personal-best") ?? "0",
-            );
-            if (state.personalBest > localPersonalBest) {
-                localStorage.setItem(
-                    "personal-best",
-                    state.personalBest.toString(),
-                );
-            }
-
-            listeners.forEach((listener: listener) =>
-                listener(state, description),
-            );
+            listeners.forEach((listener: listener<T>) => listener(state, description));
         },
-        subscribe(listener: listener): () => void {
+        subscribe(listener: listener<T>): () => void {
             listeners.add(listener);
 
             return () => {
@@ -57,4 +44,36 @@ function store() {
     };
 }
 
-export const stateStore = store();
+export const stateStore = store<stateProps>(initialState);
+
+export interface pbStateProps {
+    personalBest: number;
+}
+
+const pbState: pbStateProps = {
+    personalBest: parseInt(localStorage.getItem("personal-best") ?? "0"),
+};
+
+export const pbStateStore = store<pbStateProps>(pbState);
+
+export interface displayStateProps {
+    isDesktop: boolean;
+}
+
+const displayState: displayStateProps = {
+    isDesktop: MEDIA_QUERY.matches,
+};
+
+export const displayStateStore = store<displayStateProps>(displayState);
+
+export interface gameSettingsStateProps {
+    difficulty: number;
+    mode: number;
+}
+
+const gameSettingsState: gameSettingsStateProps = {
+    difficulty: 0,
+    mode: 0,
+};
+
+export const gameSettingsStateStore = store<gameSettingsStateProps>(gameSettingsState);

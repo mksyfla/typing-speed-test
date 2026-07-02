@@ -14,8 +14,7 @@ export function mainFooter(): HTMLElement {
     mainFooterElement.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
 
     const buttonRefresh: HTMLButtonElement = button({
-        classname:
-            "text-neutral-0 gap-2 bg-neutral-800 p-4 text-sm font-semibold tracking-wider",
+        classname: "text-neutral-0 gap-2 bg-neutral-800 p-4 text-sm font-semibold tracking-wider",
         text: "Restart Test",
         trailingIcon: ICON_RESTART(false),
         // event: () => console.log(mainFooterElement),

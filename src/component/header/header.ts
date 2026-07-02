@@ -1,4 +1,9 @@
-import { stateProps, stateStore } from "../../utils/state";
+import {
+    displayStateProps,
+    displayStateStore,
+    pbStateProps,
+    pbStateStore,
+} from "../../utils/state";
 import {
     ICON_LOGO_DESKTOP,
     ICON_LOGO_MOBILE,
@@ -34,22 +39,21 @@ export function header(): HTMLElement {
     headingElement.append(paragraphElement);
     headerElement.append(logoContainer, headingElement);
 
-    function render(state: stateProps, description: string) {
-        const logo: string = state.isDesktop
-            ? logoIcon.desktop
-            : logoIcon.mobile;
+    function renderDisplaySize(state: displayStateProps) {
+        logoContainer.innerHTML = state.isDesktop ? logoIcon.desktop : logoIcon.mobile;
+        spanElement.textContent = state.isDesktop ? "Personal Best:" : "Best:";
+    }
 
-        logoContainer.innerHTML = logo;
-        spanElement.textContent = state.isDesktop
-            ? "Personal Best: "
-            : "Best: ";
+    function renderPersonalBest(state: pbStateProps) {
         if (paragraphElement.lastChild)
             paragraphElement.lastChild.textContent = `${state.personalBest} WPM`;
     }
 
-    stateStore.subscribe(render);
+    displayStateStore.subscribe(renderDisplaySize);
+    pbStateStore.subscribe(renderPersonalBest);
 
-    render(stateStore.getState(), "Initialization");
+    renderDisplaySize(displayStateStore.getState());
+    renderPersonalBest(pbStateStore.getState());
 
     return headerElement;
 }

@@ -1,7 +1,12 @@
 import { ICON_ARROW_DOWN } from "../../utils/svg";
 import { button } from "../button";
 import { classnameTypes } from "../../utils/classname.types";
-import { stateProps, stateStore } from "../../utils/state";
+import {
+    displayStateProps,
+    displayStateStore,
+    gameSettingsStateProps,
+    gameSettingsStateStore,
+} from "../../utils/state";
 
 interface mainHeaderProps {
     stats: {
@@ -25,11 +30,11 @@ export function mainHeader(props: mainHeaderProps): HTMLElement {
     );
 
     const settingsList: HTMLElement[] = [
-        selectionElement({
+        selectionElementUpdated({
             header: "Difficulty",
             values: ["Easy", "Medium", "Hard"],
         }),
-        selectionElement({
+        selectionElementUpdated({
             header: "Mode",
             values: ["Timed (60s)", "Passage"],
         }),
@@ -95,7 +100,7 @@ interface selectionElementProps {
     values: string[];
 }
 
-function selectionElement(props: selectionElementProps): HTMLElement {
+function selectionElementUpdated(props: selectionElementProps): HTMLElement {
     const classname: classnameTypes = {
         base: "",
         desktop:
@@ -111,13 +116,13 @@ function selectionElement(props: selectionElementProps): HTMLElement {
     spanElement.textContent = props.header + ":";
 
     const listContainer: HTMLDivElement = document.createElement("div");
-    listContainer.className = "absolute mt-1 w-full rounded-lg bg-neutral-800";
+    listContainer.className =
+        "absolute mt-1 hidden w-full rounded-lg bg-neutral-800 lg:static lg:mt-0 lg:flex lg:w-fit lg:gap-2 lg:rounded-none lg:bg-transparent";
 
     let isDropdownDown: boolean = false;
 
     const buttonDropdown: HTMLButtonElement = button({
-        classname:
-            "w-full gap-2 border border-neutral-500 px-2 py-1 text-sm font-normal",
+        classname: "w-full gap-2 border border-neutral-500 px-2 py-1 text-sm font-normal",
         text: "",
         trailingIcon: ICON_ARROW_DOWN,
         event: toggleList,
@@ -125,60 +130,59 @@ function selectionElement(props: selectionElementProps): HTMLElement {
 
     function toggleList() {
         isDropdownDown = !isDropdownDown;
-        render(stateStore.getState(), "toggle selector list");
+        renderDisplaySize(displayStateStore.getState());
     }
 
     const type = props.header.toLowerCase();
 
-    function render(state: stateProps, description: string) {
-        console.log("render selectionElement", description);
+    const selectionList = props.values.map((value, index) =>
+        selectionListElement({
+            option: value,
+            selected: index === 0,
+            event: () =>
+                type === "difficulty"
+                    ? gameSettingsStateStore.setState(
+                          { difficulty: index },
+                          `select difficulty to ${index}`,
+                      )
+                    : gameSettingsStateStore.setState({ mode: index }, `select mode to ${index}`),
+        }),
+    );
 
-        const selected: number =
-            type === "difficulty" ? state.difficulty : state.mode;
+    listContainer.append(...selectionList);
+    selectionElement.append(spanElement, listContainer);
 
-        const selectionList = props.values.map((value, index) =>
-            selectionListElement({
-                option: value,
-                selected: index === selected,
-                event: () => {
-                    if (type === "difficulty") {
-                        stateStore.setState(
-                            { difficulty: index },
-                            `select difficulty to ${index}`,
-                        );
-                    } else {
-                        stateStore.setState(
-                            { mode: index },
-                            `select mode to ${index}`,
-                        );
-                    }
-                },
-            }),
-        );
+    function update(selected: number) {
+        selectionList.forEach((list: HTMLElement, index: number) => {
+            list.classList.toggle("before:border-4", index === selected);
+            list.classList.toggle("before:border-blue-400", index === selected);
+            list.classList.toggle("lg:border-blue-400", index === selected);
+            list.classList.toggle("lg:text-blue-400", index === selected);
+        });
+    }
 
+    function renderGameSetting(state: gameSettingsStateProps) {
+        const selected: number = type === "difficulty" ? state.difficulty : state.mode;
+
+        update(selected);
+        buttonDropdown.children[0].textContent = selectionList[selected].textContent;
+    }
+
+    function renderDisplaySize(state: displayStateProps) {
         if (state.isDesktop) {
             isDropdownDown = false;
-
-            selectionElement.innerHTML = "";
-            selectionElement.append(spanElement, ...selectionList);
+            selectionElement.firstChild?.replaceWith(spanElement);
         } else {
-            if (isDropdownDown) listContainer.classList.remove("hidden");
-            else listContainer.classList.add("hidden");
-
-            listContainer.innerHTML = "";
-            listContainer.append(...selectionList);
-
-            buttonDropdown.children[0].textContent =
-                selectionList[selected].innerHTML;
-
-            selectionElement.innerHTML = "";
-            selectionElement.append(buttonDropdown, listContainer);
+            listContainer.classList.toggle("hidden", !isDropdownDown);
+            selectionElement.firstChild?.replaceWith(buttonDropdown);
         }
     }
 
-    stateStore.subscribe(render);
+    displayStateStore.subscribe(renderDisplaySize);
+    gameSettingsStateStore.subscribe(renderGameSetting);
 
-    render(stateStore.getState(), "Initialization");
+    renderDisplaySize(displayStateStore.getState());
+    renderGameSetting(gameSettingsStateStore.getState());
 
     return selectionElement;
 }
@@ -192,14 +196,12 @@ interface selectionListElementProps {
 function selectionListElement(props: selectionListElementProps): HTMLElement {
     const classname: classnameTypes = {
         base: "flex cursor-pointer items-center gap-2 border-neutral-500 px-2",
-        desktop:
-            "lg:rounded-md lg:border lg:py-1 lg:text-base lg:before:content-none",
+        desktop: "lg:rounded-md lg:border lg:py-1 lg:text-base lg:before:content-none",
         mobile: "py-2 text-sm not-last:border-b before:size-3 before:rounded-full before:border",
     };
 
     const selectionElement: HTMLElement = document.createElement("div");
-    selectionElement.className = `${props.selected ? "before:border-3 before:border-blue-400 lg:border-blue-400 lg:text-blue-400" : ""} ${classname.base} ${classname.desktop} ${classname.mobile}`;
-    // selectionElement.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
+    selectionElement.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
     selectionElement.textContent = props.option;
     selectionElement.addEventListener("click", props.event);
 
