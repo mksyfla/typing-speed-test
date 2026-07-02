@@ -1,4 +1,4 @@
-import { displayStateStore, stateStore } from "./state";
+import { displayStateStore } from "./state";
 
 export const BREAKPOINTS: {
     xl: number;
@@ -15,6 +15,5 @@ export const BREAKPOINTS: {
 export const MEDIA_QUERY: MediaQueryList = window.matchMedia(`(min-width: ${BREAKPOINTS.lg}px)`);
 
 MEDIA_QUERY.addEventListener("change", (e: MediaQueryListEvent) => {
-    stateStore.setState({ isDesktop: e.matches }, "Change Media Query");
     displayStateStore.setState({ isDesktop: e.matches }, "Change Media Query");
 });

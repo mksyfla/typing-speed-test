@@ -1,19 +1,5 @@
 import { MEDIA_QUERY } from "./breakpoint";
 
-export interface stateProps {
-    difficulty: number;
-    mode: number;
-    personalBest: number;
-    isDesktop: boolean;
-}
-
-const initialState: stateProps = {
-    difficulty: 0,
-    mode: 0,
-    personalBest: parseInt(localStorage.getItem("personal-best") ?? "0"),
-    isDesktop: MEDIA_QUERY.matches,
-};
-
 type listener<T> = (state: T, description?: string) => void;
 
 export function store<T>(state: T) {
@@ -43,8 +29,6 @@ export function store<T>(state: T) {
         },
     };
 }
-
-export const stateStore = store<stateProps>(initialState);
 
 export interface pbStateProps {
     personalBest: number;
