@@ -1,4 +1,4 @@
-import { displayStateStore } from "./state";
+import { store } from "./state";
 
 export const BREAKPOINTS: {
     xl: number;
@@ -17,3 +17,13 @@ export const MEDIA_QUERY: MediaQueryList = window.matchMedia(`(min-width: ${BREA
 MEDIA_QUERY.addEventListener("change", (e: MediaQueryListEvent) => {
     displayStateStore.setState({ isDesktop: e.matches }, "Change Media Query");
 });
+
+export interface displayStateProps {
+    isDesktop: boolean;
+}
+
+const displayState: displayStateProps = {
+    isDesktop: MEDIA_QUERY.matches,
+};
+
+export const displayStateStore = store<displayStateProps>(displayState);

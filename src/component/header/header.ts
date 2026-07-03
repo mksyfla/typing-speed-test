@@ -1,9 +1,5 @@
-import {
-    displayStateProps,
-    displayStateStore,
-    pbStateProps,
-    pbStateStore,
-} from "../../utils/state";
+import { displayStateProps, displayStateStore } from "../../utils/breakpoint";
+import { store } from "../../utils/state";
 import {
     ICON_LOGO_DESKTOP,
     ICON_LOGO_MOBILE,
@@ -57,3 +53,13 @@ export function header(): HTMLElement {
 
     return headerElement;
 }
+
+export interface pbStateProps {
+    personalBest: number;
+}
+
+const pbState: pbStateProps = {
+    personalBest: parseInt(localStorage.getItem("personal-best") ?? "0"),
+};
+
+export const pbStateStore = store<pbStateProps>(pbState);

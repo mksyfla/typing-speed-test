@@ -1,6 +1,19 @@
+import { store } from "../../utils/state";
 import { mainFooter } from "./main.footer";
 import { mainHeader } from "./main.header";
 import { mainMain } from "./main.main";
+
+export interface gameSettingsStateProps {
+    difficulty: number;
+    mode: number;
+}
+
+const gameSettingsState: gameSettingsStateProps = {
+    difficulty: 0,
+    mode: 0,
+};
+
+export const gameSettingsStateStore = store<gameSettingsStateProps>(gameSettingsState);
 
 export function mainElement(): HTMLElement {
     const main: HTMLElement = document.createElement("main");

@@ -1,5 +1,4 @@
 import { classnameTypes } from "../../utils/classname.types";
-import { stateStore } from "../../utils/state";
 import { ICON_RESTART } from "../../utils/svg";
 import { button } from "../button";
 

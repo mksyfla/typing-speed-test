@@ -1,12 +1,8 @@
 import { ICON_ARROW_DOWN } from "../../utils/svg";
 import { button } from "../button";
 import { classnameTypes } from "../../utils/classname.types";
-import {
-    displayStateProps,
-    displayStateStore,
-    gameSettingsStateProps,
-    gameSettingsStateStore,
-} from "../../utils/state";
+import { displayStateProps, displayStateStore } from "../../utils/breakpoint";
+import { gameSettingsStateProps, gameSettingsStateStore } from "./main";
 
 interface mainHeaderProps {
     stats: {
