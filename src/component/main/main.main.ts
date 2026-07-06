@@ -15,11 +15,11 @@ export function mainMain(): HTMLElement {
     let characterWrong: number = 0;
 
     const mainElement: HTMLElement = document.createElement("div");
-    mainElement.className = "relative w-full flex-1 text-neutral-400";
+    mainElement.className = "relative w-full flex-1 text-neutral-400 overflow-y-auto scroll-smooth";
 
     const renderedText: HTMLElement = document.createElement("div");
     renderedText.className =
-        "h-full overflow-hidden bg-neutral-900 text-3xl leading-10 font-normal tracking-wide";
+        "relative w-full bg-neutral-900 text-3xl leading-10 font-normal tracking-wide";
 
     const textInput: HTMLTextAreaElement = document.createElement("textarea");
     textInput.className = "absolute top-0 h-full w-full resize-none opacity-0 cursor-none";
@@ -45,15 +45,25 @@ export function mainMain(): HTMLElement {
                         return `<span class="text-red-500 underline">${t}</span>`;
                     }
                 } else if (i === userInput.length) {
-                    return `<span class="rounded-md bg-neutral-700">${t}</span>`;
+                    return `<span id="active-cursor" class="rounded-md bg-neutral-700">${t}</span>`;
                 } else {
                     return t;
                 }
             })
             .join("");
 
+        const cursorElement = document.getElementById("active-cursor") as HTMLSpanElement;
+
+        if (cursorElement) {
+            const containerHeight = mainElement.clientHeight;
+            const cursorTop = cursorElement.offsetTop;
+            const cursorHeight = cursorElement.clientHeight;
+            const scrollToTarget = cursorTop - containerHeight / 2 + cursorHeight / 2;
+
+            mainElement.scrollTop = scrollToTarget;
+        }
+
         if (text.length <= userInput.length) {
-            console.log("finished");
             gameSettingsStateStore.setState({
                 finish: true,
                 start: false,
@@ -69,23 +79,34 @@ export function mainMain(): HTMLElement {
     const startElement: HTMLElement = start();
     const finishElement: HTMLElement = finish();
 
+    mainElement.append(renderedText, textInput, startElement, finishElement);
+
     function renderStart(state: gameSettingsStateProps) {
         textInput.value = "";
         textInput.focus();
 
-        if (!state.start || state.finish) {
-            mainElement.innerHTML = "";
-
-            if (state.finish) {
-                mainElement.append(finishElement);
-            } else {
-                mainElement.append(startElement);
-            }
+        if (state.finish) {
+            finishElement.classList.remove("hidden");
+            startElement.classList.add("hidden");
+            renderedText.classList.add("hidden");
+            textInput.classList.add("hidden");
+        } else if (!state.start) {
+            startElement.classList.remove("hidden");
+            finishElement.classList.add("hidden");
+            renderedText.classList.add("hidden");
+            textInput.classList.add("hidden");
         } else {
-            renderedText.textContent = state.text;
+            renderedText.classList.remove("hidden");
+            textInput.classList.remove("hidden");
+            startElement.classList.add("hidden");
+            finishElement.classList.add("hidden");
 
-            mainElement.innerHTML = "";
-            mainElement.append(renderedText, textInput);
+            if (textInput.value === "") {
+                renderedText.textContent = state.text;
+                mainElement.scrollTop = 0;
+            }
+
+            textInput.focus();
         }
     }
 
@@ -123,7 +144,7 @@ function finish(): HTMLElement {
     };
 
     const finishElement: HTMLElement = document.createElement("div");
-    finishElement.className = "mt-10 flex h-full w-full flex-col items-center";
+    finishElement.className = "mt-10 flex h-fit w-full flex-col items-center";
 
     const logoContainer: HTMLDivElement = document.createElement("div");
     logoContainer.className = "mb-8";

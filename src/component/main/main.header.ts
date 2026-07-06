@@ -177,8 +177,6 @@ function selectionElement(props: selectionElementProps): HTMLElement {
     function renderGameSetting(state: gameSettingsStateProps) {
         const selected: number = type === "difficulty" ? state.difficulty : state.mode;
 
-        console.log("rendering on header", state.difficulty);
-
         update(selected);
         buttonDropdown.children[0].textContent = selectionList[selected].textContent;
     }
