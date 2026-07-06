@@ -1,4 +1,5 @@
 import { displayStateProps, displayStateStore } from "../../utils/breakpoint";
+import { classnameTypes } from "../../utils/classname.types";
 import { store } from "../../utils/state";
 import {
     ICON_LOGO_DESKTOP,
@@ -16,15 +17,20 @@ export function header(): HTMLElement {
         desktop: ICON_LOGO_DESKTOP,
     };
 
+    const classname: classnameTypes = {
+        base: "flex shrink-0 items-center justify-between bg-neutral-900",
+        desktop: "lg:pt-8 lg:mb-8",
+        mobile: "pt-4 mb-4",
+    };
+
     const headerElement: HTMLElement = document.createElement("header");
-    headerElement.className =
-        "mb-4 flex shrink-0 items-center justify-between bg-neutral-900 pt-4 lg:mb-8 lg:pt-6";
+    headerElement.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
 
     const headingElement: HTMLDivElement = document.createElement("div");
     headingElement.className = "flex items-center justify-end gap-2";
 
     const paragraphElement: HTMLParagraphElement = document.createElement("p");
-    paragraphElement.className = "flex gap-1 text-sm lg:text-base";
+    paragraphElement.className = "flex gap-1 text-base leading-tight font-normal";
 
     const spanElement: HTMLSpanElement = document.createElement("span");
     spanElement.className = "text-neutral-500";

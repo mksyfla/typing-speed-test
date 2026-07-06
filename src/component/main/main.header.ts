@@ -1,7 +1,7 @@
+import { displayStateProps, displayStateStore } from "../../utils/breakpoint";
+import { classnameTypes } from "../../utils/classname.types";
 import { ICON_ARROW_DOWN } from "../../utils/svg";
 import { button } from "../button";
-import { classnameTypes } from "../../utils/classname.types";
-import { displayStateProps, displayStateStore } from "../../utils/breakpoint";
 import { gameSettingsStateProps, gameSettingsStateStore } from "./main";
 
 interface mainHeaderProps {
@@ -13,7 +13,7 @@ interface mainHeaderProps {
 
 export function mainHeader(props: mainHeaderProps): HTMLElement {
     const classname: classnameTypes = {
-        base: "flex shrink-0 gap-2 border-b border-neutral-500 bg-neutral-900 pb-2",
+        base: "z-10 flex shrink-0 gap-4 border-b border-neutral-500 bg-neutral-900 pb-4",
         desktop: "lg:flex-row lg:justify-between",
         mobile: "flex-col justify-center",
     };
@@ -26,11 +26,11 @@ export function mainHeader(props: mainHeaderProps): HTMLElement {
     );
 
     const settingsList: HTMLElement[] = [
-        selectionElementUpdated({
+        selectionElement({
             header: "Difficulty",
             values: ["Easy", "Medium", "Hard"],
         }),
-        selectionElementUpdated({
+        selectionElement({
             header: "Mode",
             values: ["Timed (60s)", "Passage"],
         }),
@@ -71,7 +71,7 @@ interface statsListElementProps {
 function statsListElement(props: statsListElementProps): HTMLElement {
     const classname: classnameTypes = {
         base: "flex flex-1 items-center gap-1 border-neutral-500 not-last:border-r",
-        desktop: "lg:flex-row lg:px-4 lg:first:pl-0 lg:last:pr-0",
+        desktop: "lg:flex-row lg:px-5 lg:first:pl-0 lg:last:pr-0",
         mobile: "flex-col",
     };
 
@@ -79,11 +79,11 @@ function statsListElement(props: statsListElementProps): HTMLElement {
     statsElement.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
 
     const headingElement: HTMLHeadingElement = document.createElement("h3");
-    headingElement.className = "text-sm text-neutral-500 lg:text-base";
+    headingElement.className = "text-base leading-tight font-normal text-neutral-500";
     headingElement.textContent = props.heading;
 
     const paragraphElement: HTMLParagraphElement = document.createElement("p");
-    paragraphElement.className = "text-lg font-bold lg:text-xl";
+    paragraphElement.className = "text-xl leading-tight font-semibold";
     paragraphElement.textContent = props.value;
 
     statsElement.append(headingElement, paragraphElement);
@@ -96,7 +96,7 @@ interface selectionElementProps {
     values: string[];
 }
 
-function selectionElementUpdated(props: selectionElementProps): HTMLElement {
+function selectionElement(props: selectionElementProps): HTMLElement {
     const classname: classnameTypes = {
         base: "",
         desktop:
@@ -108,17 +108,22 @@ function selectionElementUpdated(props: selectionElementProps): HTMLElement {
     selectionElement.className = `${classname.desktop} ${classname.mobile}`;
 
     const spanElement: HTMLSpanElement = document.createElement("span");
-    spanElement.className = "inline text-neutral-500";
+    spanElement.className = "inline text-base leading-tight font-normal text-neutral-500";
     spanElement.textContent = props.header + ":";
 
+    const listContainerClassname: classnameTypes = {
+        base: "",
+        desktop: "lg:static lg:mt-0 lg:w-fit lg:rounded-none lg:bg-transparent lg:flex lg:gap-2",
+        mobile: "absolute mt-2 w-full rounded-lg bg-neutral-800",
+    };
+
     const listContainer: HTMLDivElement = document.createElement("div");
-    listContainer.className =
-        "absolute mt-1 hidden w-full rounded-lg bg-neutral-800 lg:static lg:mt-0 lg:flex lg:w-fit lg:gap-2 lg:rounded-none lg:bg-transparent";
+    listContainer.className = `${listContainerClassname.desktop} ${listContainerClassname.mobile}`;
 
     let isDropdownDown: boolean = false;
 
     const buttonDropdown: HTMLButtonElement = button({
-        classname: "w-full gap-2 border border-neutral-500 px-2 py-1 text-sm font-normal",
+        classname: "w-full border border-neutral-500 px-2 py-1",
         text: "",
         trailingIcon: ICON_ARROW_DOWN,
         event: toggleList,
@@ -137,11 +142,20 @@ function selectionElementUpdated(props: selectionElementProps): HTMLElement {
             selected: index === 0,
             event: () =>
                 type === "difficulty"
-                    ? gameSettingsStateStore.setState(
-                          { difficulty: index },
-                          `select difficulty to ${index}`,
-                      )
-                    : gameSettingsStateStore.setState({ mode: index }, `select mode to ${index}`),
+                    ? gameSettingsStateStore.setState({
+                          difficulty: index,
+                          start: false,
+                          userInput: "",
+                          characterRight: 0,
+                          characterWrong: 0,
+                      })
+                    : gameSettingsStateStore.setState({
+                          mode: index,
+                          start: false,
+                          userInput: "",
+                          characterRight: 0,
+                          characterWrong: 0,
+                      }),
         }),
     );
 
@@ -191,9 +205,9 @@ interface selectionListElementProps {
 
 function selectionListElement(props: selectionListElementProps): HTMLElement {
     const classname: classnameTypes = {
-        base: "flex cursor-pointer items-center gap-2 border-neutral-500 px-2",
-        desktop: "lg:rounded-md lg:border lg:py-1 lg:text-base lg:before:content-none",
-        mobile: "py-2 text-sm not-last:border-b before:size-3 before:rounded-full before:border",
+        base: "flex cursor-pointer items-center gap-2 border-neutral-500 px-2 text-base leading-tight font-normal",
+        desktop: "lg:rounded-md lg:border lg:py-1 lg:before:content-none",
+        mobile: "py-2 not-last:border-b before:size-3 before:rounded-full before:border",
     };
 
     const selectionElement: HTMLElement = document.createElement("div");

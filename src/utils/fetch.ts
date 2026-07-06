@@ -10,9 +10,10 @@ export async function getData() {
 
         if (!response.ok) throw new Error(`Response status: ${response.status}`);
 
-        const result: responseData = await response.json();
-        return result;
+        return await response.json();
     } catch (error: unknown) {
         if (error instanceof Error) console.error(error.message);
     }
 }
+
+export const DATA_TEXT = await getData();

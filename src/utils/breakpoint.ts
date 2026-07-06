@@ -15,7 +15,7 @@ export const BREAKPOINTS: {
 export const MEDIA_QUERY: MediaQueryList = window.matchMedia(`(min-width: ${BREAKPOINTS.lg}px)`);
 
 MEDIA_QUERY.addEventListener("change", (e: MediaQueryListEvent) => {
-    displayStateStore.setState({ isDesktop: e.matches }, "Change Media Query");
+    displayStateStore.setState({ isDesktop: e.matches });
 });
 
 export interface displayStateProps {

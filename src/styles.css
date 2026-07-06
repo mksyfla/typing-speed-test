@@ -30,6 +30,6 @@ body {
 }
 
 #app {
-    @apply text-neutral-0 w-full max-w-300 min-w-90 text-base font-normal;
+    @apply text-neutral-0 w-full max-w-300 min-w-90;
     @apply flex flex-col;
 }
