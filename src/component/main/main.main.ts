@@ -7,59 +7,85 @@ import {
     SVG_ICON_DATA_TYPES,
 } from "../../utils/svg";
 import { button } from "../button";
-import { gameSettingsStateProps, gameSettingsStateStore } from "./main";
+import { gameSettingsStateProps, gameSettingsStateStore, gameStatsStateStore } from "./main";
 
 export function mainMain(): HTMLElement {
     const gameState = gameSettingsStateStore.getState();
+    let characterRight: number = 0;
+    let characterWrong: number = 0;
 
     const mainElement: HTMLElement = document.createElement("div");
-    mainElement.className = "relative w-full flex-1 overflow-y-auto text-neutral-400";
+    mainElement.className = "relative w-full flex-1 text-neutral-400";
 
     const renderedText: HTMLElement = document.createElement("div");
     renderedText.className =
         "h-full overflow-hidden bg-neutral-900 text-3xl leading-10 font-normal tracking-wide";
 
     const textInput: HTMLTextAreaElement = document.createElement("textarea");
-    textInput.className = "absolute top-0 h-full w-full resize-none opacity-0";
+    textInput.className = "absolute top-0 h-full w-full resize-none opacity-0 cursor-none";
     textInput.autofocus = true;
+    textInput.addEventListener("input", () => {
+        const text = gameSettingsStateStore.getState().text;
+        const userInput = textInput.value;
 
-    const startElement: HTMLElement = start(gameState);
+        characterRight = 0;
+        characterWrong = 0;
 
-    mainElement.append(renderedText, textInput, startElement);
+        renderedText.innerHTML = Array.from(text)
+            .map((_, i) => {
+                const t = text[i];
+                const u = userInput[i];
 
-    async function renderStart(state: gameSettingsStateProps) {
+                if (i < userInput.length) {
+                    if (u === t) {
+                        characterRight += 1;
+                        return `<span class="text-green-500">${t}</span>`;
+                    } else {
+                        characterWrong += 1;
+                        return `<span class="text-red-500 underline">${t}</span>`;
+                    }
+                } else if (i === userInput.length) {
+                    return `<span class="rounded-md bg-neutral-700">${t}</span>`;
+                } else {
+                    return t;
+                }
+            })
+            .join("");
+
+        if (text.length <= userInput.length) {
+            console.log("finished");
+            gameSettingsStateStore.setState({
+                finish: true,
+                start: false,
+            });
+        }
+
+        gameStatsStateStore.setState({
+            characterRight: characterRight,
+            characterWrong: characterWrong,
+        });
+    });
+
+    const startElement: HTMLElement = start();
+    const finishElement: HTMLElement = finish();
+
+    function renderStart(state: gameSettingsStateProps) {
         textInput.value = "";
         textInput.focus();
 
-        if (state.start) {
-            renderedText.textContent = state.text;
-            startElement.classList.add("hidden");
+        if (!state.start || state.finish) {
+            mainElement.innerHTML = "";
 
-            textInput.addEventListener("input", () => {
-                const text = state.text;
-                const userInput = textInput.value;
-
-                renderedText.innerHTML = Array.from(text)
-                    .map((_, i) => {
-                        const t = text[i];
-                        const u = userInput[i];
-
-                        if (i < userInput.length) {
-                            if (u === t) {
-                                return `<span class="text-green-500">${t}</span>`;
-                            } else {
-                                return `<span class="text-red-500 underline">${t}</span>`;
-                            }
-                        } else if (i === userInput.length) {
-                            return `<span class="rounded-md bg-neutral-700">${t}</span>`;
-                        } else {
-                            return t;
-                        }
-                    })
-                    .join("");
-            });
+            if (state.finish) {
+                mainElement.append(finishElement);
+            } else {
+                mainElement.append(startElement);
+            }
         } else {
-            startElement.classList.remove("hidden");
+            renderedText.textContent = state.text;
+
+            mainElement.innerHTML = "";
+            mainElement.append(renderedText, textInput);
         }
     }
 
@@ -79,16 +105,9 @@ function finish(): HTMLElement {
     }
 
     const finishData: {
-        firstCompleted: finishType;
         completed: finishType;
         personalBest: finishType;
     } = {
-        firstCompleted: {
-            logo: ICON_COMPLETED,
-            heading: "Baseline Established!",
-            paragraph: "You’ve set the bar. Now the real challenge begins-time to beat it.",
-            buttonText: "Beat This Score!",
-        },
         completed: {
             logo: ICON_COMPLETED,
             heading: "Test Completed!",
@@ -104,19 +123,22 @@ function finish(): HTMLElement {
     };
 
     const finishElement: HTMLElement = document.createElement("div");
-    finishElement.className = "flex h-full w-full flex-col items-center";
+    finishElement.className = "mt-10 flex h-full w-full flex-col items-center";
 
     const logoContainer: HTMLDivElement = document.createElement("div");
     logoContainer.className = "mb-8";
+    logoContainer.innerHTML = finishData.completed.logo;
 
     const textContainer: HTMLDivElement = document.createElement("div");
     textContainer.className = "mb-4 flex flex-col gap-2 text-center";
 
     const heading: HTMLHeadingElement = document.createElement("h3");
-    heading.className = "text-3xl leading-tight font-semibold";
+    heading.className = "text-3xl leading-tight font-semibold text-neutral-0";
+    heading.textContent = finishData.completed.heading;
 
     const paragraph: HTMLParagraphElement = document.createElement("p");
     paragraph.className = "text-base leading-tight font-normal text-neutral-500";
+    paragraph.textContent = finishData.completed.paragraph;
 
     const statsElementClassname: classnameTypes = {
         base: "mb-10 flex",
@@ -133,7 +155,9 @@ function finish(): HTMLElement {
         { key: "Characters", value: "120/5" },
     ];
 
-    stats.map((stat) => statsList({ heading: stat.key, value: stat.value }));
+    const stasListElement: HTMLDivElement[] = stats.map((stat) =>
+        statsList({ heading: stat.key, value: stat.value }),
+    );
 
     interface statsListElementProps {
         heading: string;
@@ -158,79 +182,75 @@ function finish(): HTMLElement {
         statsParagraph.className = "text-neutral-0 text-xl leading-tight font-semibold";
         statsParagraph.textContent = props.value;
 
+        statListElement.append(statsHeading, statsParagraph);
+
         return statListElement;
     }
 
     const buttonElement: HTMLButtonElement = button({
         classname: "bg-neutral-0 p-4 text-neutral-800",
-        text: "",
+        text: finishData.completed.buttonText,
         trailingIcon: ICON_RESTART(true),
         event: () =>
             gameSettingsStateStore.setState({
                 start: false,
-                userInput: "",
-                characterRight: 0,
-                characterWrong: 0,
+                finish: false,
             }),
     });
 
+    textContainer.append(heading, paragraph);
+    statsElement.append(...stasListElement);
+    finishElement.append(logoContainer, textContainer, statsElement, buttonElement);
+
     return finishElement;
-    `
-    <div class="">
-        <div class="">
-            ${iconCompleted}
-        </div>
-
-        <div class="">
-            <h3 class="">Baseline Established!</h3>
-            <p class="">
-                You’ve set the bar. Now the real challenge begins—time to beat it.
-            </p>
-        </div>
-
-        <div class="">
-            <div class="">
-                <h3 class="">
-                    WPM
-                </h3>
-                <p class="">85</p>
-            </div>
-        </div>
-    </div>
-    `;
 }
 
-function start(state: gameSettingsStateProps): HTMLElement {
+function start(): HTMLElement {
     const startElement: HTMLElement = document.createElement("div");
     startElement.className =
-        "absolute top-0 flex h-full w-full flex-col items-center justify-center gap-4 bg-neutral-900/40 backdrop-blur-md";
+        "absolute top-0 flex h-full w-full flex-col items-center justify-center gap-4";
+
+    let text: string;
+
+    function render(state: gameSettingsStateProps) {
+        const idx = Math.floor(Math.random() * 10);
+
+        switch (state.difficulty) {
+            case 0:
+                text = DATA_TEXT["easy"][idx];
+                break;
+            case 1:
+                text = DATA_TEXT["medium"][idx];
+                break;
+            case 2:
+                text = DATA_TEXT["hard"][idx];
+                break;
+            default:
+                text = DATA_TEXT["easy"][idx];
+                break;
+        }
+    }
+
+    gameSettingsStateStore.subscribe(render);
 
     const buttonElement: HTMLButtonElement = button({
         classname: "text-neutral-0 bg-blue-600 p-4",
         text: "Start Typing Test",
         event: () => {
-            let text: string;
-            const idx = Math.floor(Math.random() * 10);
-
-            switch (state.difficulty) {
-                case 0:
-                    text = DATA_TEXT["easy"][idx];
-                    break;
-                case 1:
-                    text = DATA_TEXT["medium"][idx];
-                    break;
-                case 2:
-                    text = DATA_TEXT["hard"][idx];
-                    break;
-                default:
-                    text = DATA_TEXT["easy"][idx];
-                    break;
-            }
-            gameSettingsStateStore.setState({ start: true, text: text });
+            render(gameSettingsStateStore.getState());
+            gameSettingsStateStore.setState({
+                start: true,
+                finish: false,
+                text: text,
+            });
         },
     });
 
-    startElement.append(buttonElement);
+    const paragraphElement: HTMLParagraphElement = document.createElement("p");
+    paragraphElement.className = "text-base leading-tight font-normal text-neutral-0";
+    paragraphElement.textContent = "Or click the text and start typing";
+
+    startElement.append(buttonElement, paragraphElement);
 
     return startElement;
 }

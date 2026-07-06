@@ -6,29 +6,37 @@ import { mainMain } from "./main.main";
 
 export interface gameSettingsStateProps {
     start: boolean;
+    finish: boolean;
     difficulty: number;
     mode: number;
     text: string;
-    userInput: string;
-    characterRight: number;
-    characterWrong: number;
 }
 
 const gameSettingsState: gameSettingsStateProps = {
     start: false,
+    finish: false,
     difficulty: 0,
     mode: 0,
     text: "",
-    userInput: "",
-    characterRight: 0,
-    characterWrong: 0,
 };
 
 export const gameSettingsStateStore = store<gameSettingsStateProps>(gameSettingsState);
 
+export interface gameStatsStateProps {
+    characterRight: number;
+    characterWrong: number;
+}
+
+const gameStatsState: gameStatsStateProps = {
+    characterRight: 0,
+    characterWrong: 0,
+};
+
+export const gameStatsStateStore = store<gameStatsStateProps>(gameStatsState);
+
 export function mainElement(): HTMLElement {
     const classname: classnameTypes = {
-        base: "flex min-h-0 flex-1 flex-col",
+        base: "flex min-h-0 flex-1 flex-col overflow-y-hidden",
         desktop: "lg:gap-10",
         mobile: "gap-5",
     };
@@ -36,15 +44,7 @@ export function mainElement(): HTMLElement {
     const main: HTMLElement = document.createElement("main");
     main.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
 
-    const header = mainHeader({
-        stats: [
-            { key: "WPM:", value: "0" },
-            { key: "Accuracy:", value: "100%" },
-            { key: "Time:", value: "0:60" },
-        ],
-    });
-
-    main.append(header, mainMain(), mainFooter());
+    main.append(mainHeader(), mainMain(), mainFooter());
 
     return main;
 }

@@ -20,9 +20,7 @@ export function mainFooter(): HTMLElement {
         event: () =>
             gameSettingsStateStore.setState({
                 start: false,
-                userInput: "",
-                characterRight: 0,
-                characterWrong: 0,
+                finish: false,
             }),
     });
 

@@ -4,14 +4,7 @@ import { ICON_ARROW_DOWN } from "../../utils/svg";
 import { button } from "../button";
 import { gameSettingsStateProps, gameSettingsStateStore } from "./main";
 
-interface mainHeaderProps {
-    stats: {
-        key: string;
-        value: string;
-    }[];
-}
-
-export function mainHeader(props: mainHeaderProps): HTMLElement {
+export function mainHeader(): HTMLElement {
     const classname: classnameTypes = {
         base: "z-10 flex shrink-0 gap-4 border-b border-neutral-500 bg-neutral-900 pb-4",
         desktop: "lg:flex-row lg:justify-between",
@@ -21,9 +14,11 @@ export function mainHeader(props: mainHeaderProps): HTMLElement {
     const mainHeader: HTMLElement = document.createElement("div");
     mainHeader.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
 
-    const stats: HTMLElement[] = props.stats.map((stat) =>
-        statsListElement({ heading: stat.key, value: stat.value }),
-    );
+    const stats: HTMLElement[] = [
+        { key: "WPM:", value: "0" },
+        { key: "Accuracy:", value: "100%" },
+        { key: "Time:", value: "0:60" },
+    ].map((stat) => statsListElement({ heading: stat.key, value: stat.value }));
 
     const settingsList: HTMLElement[] = [
         selectionElement({
@@ -40,6 +35,18 @@ export function mainHeader(props: mainHeaderProps): HTMLElement {
         headerSection({ child: stats }),
         headerSection({ child: settingsList, classname: "gap-2 lg:gap-0" }),
     );
+
+    function render(state: gameSettingsStateProps) {
+        if (!state.finish) {
+            mainHeader.classList.remove("hidden");
+        } else {
+            mainHeader.classList.add("hidden");
+        }
+    }
+
+    gameSettingsStateStore.subscribe(render);
+
+    render(gameSettingsStateStore.getState());
 
     return mainHeader;
 }
@@ -145,16 +152,12 @@ function selectionElement(props: selectionElementProps): HTMLElement {
                     ? gameSettingsStateStore.setState({
                           difficulty: index,
                           start: false,
-                          userInput: "",
-                          characterRight: 0,
-                          characterWrong: 0,
+                          finish: false,
                       })
                     : gameSettingsStateStore.setState({
                           mode: index,
                           start: false,
-                          userInput: "",
-                          characterRight: 0,
-                          characterWrong: 0,
+                          finish: false,
                       }),
         }),
     );
@@ -173,6 +176,8 @@ function selectionElement(props: selectionElementProps): HTMLElement {
 
     function renderGameSetting(state: gameSettingsStateProps) {
         const selected: number = type === "difficulty" ? state.difficulty : state.mode;
+
+        console.log("rendering on header", state.difficulty);
 
         update(selected);
         buttonDropdown.children[0].textContent = selectionList[selected].textContent;
