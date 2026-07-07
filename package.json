@@ -1,6 +1,10 @@
 {
     "name": "vite-vanilla-ts-starter-pack",
+<<<<<<< HEAD
     "homepage": "https://mksyfla.github.io/typing-speed-test",
+=======
+    "homepage": "https://mksyfla.github.io/typing-speed-text",
+>>>>>>> 9ffd580e87461ecae7ea1631d0b8f960372901b1
     "private": true,
     "version": "0.0.0",
     "type": "module",
