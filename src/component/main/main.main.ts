@@ -7,6 +7,8 @@ import {
     SVG_ICON_DATA_TYPES,
 } from "../../utils/svg";
 import { button } from "../button";
+import { pbStateStore } from "../header/header";
+
 import {
     gameSettingsStateProps,
     gameSettingsStateStore,
@@ -56,6 +58,16 @@ export function mainMain(): HTMLElement {
                 }
             })
             .join("");
+
+        if (text.length === userInput.length) {
+            const wpm: number = gameStatsStateStore.getState().wpm;
+            const pb: number = parseInt(localStorage.getItem("personal-best") ?? "0", 10);
+
+            if (pb < wpm) {
+                localStorage.setItem("personal-best", wpm.toString());
+                pbStateStore.setState({ personalBest: wpm });
+            }
+        }
 
         const cursorElement = document.getElementById("active-cursor") as HTMLSpanElement;
 

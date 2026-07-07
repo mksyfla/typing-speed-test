@@ -6,7 +6,7 @@ export interface responseData {
 
 export async function getData() {
     try {
-        const response: Response = await fetch("./data-2.json");
+        const response: Response = await fetch("/data-2.json");
 
         if (!response.ok) throw new Error(`Response status: ${response.status}`);
 
