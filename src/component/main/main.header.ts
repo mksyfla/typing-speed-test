@@ -2,7 +2,12 @@ import { displayStateProps, displayStateStore } from "../../utils/breakpoint";
 import { classnameTypes } from "../../utils/classname.types";
 import { ICON_ARROW_DOWN } from "../../utils/svg";
 import { button } from "../button";
-import { gameSettingsStateProps, gameSettingsStateStore } from "./main";
+import {
+    gameSettingsStateProps,
+    gameSettingsStateStore,
+    gameStatsStateProps,
+    gameStatsStateStore,
+} from "./main";
 
 export function mainHeader(): HTMLElement {
     const classname: classnameTypes = {
@@ -14,11 +19,9 @@ export function mainHeader(): HTMLElement {
     const mainHeader: HTMLElement = document.createElement("div");
     mainHeader.className = `${classname.base} ${classname.desktop} ${classname.mobile}`;
 
-    const stats: HTMLElement[] = [
-        { key: "WPM:", value: "0" },
-        { key: "Accuracy:", value: "100%" },
-        { key: "Time:", value: "0:60" },
-    ].map((stat) => statsListElement({ heading: stat.key, value: stat.value }));
+    const wpmStats: HTMLElement = statsListElement({ heading: "WPM", value: "0" });
+    const accuracyStats: HTMLElement = statsListElement({ heading: "Accuracy", value: "0%" });
+    const timeStats: HTMLElement = statsListElement({ heading: "Time", value: "0:60" });
 
     const settingsList: HTMLElement[] = [
         selectionElement({
@@ -32,9 +35,11 @@ export function mainHeader(): HTMLElement {
     ];
 
     mainHeader.append(
-        headerSection({ child: stats }),
+        headerSection({ child: [wpmStats, accuracyStats, timeStats] }),
         headerSection({ child: settingsList, classname: "gap-2 lg:gap-0" }),
     );
+
+    let timerInterval: ReturnType<typeof setInterval> | null = null;
 
     function render(state: gameSettingsStateProps) {
         if (!state.finish) {
@@ -42,10 +47,74 @@ export function mainHeader(): HTMLElement {
         } else {
             mainHeader.classList.add("hidden");
         }
+
+        if (state.start && !state.finish) {
+            startTimer();
+        } else {
+            stopTimer();
+        }
     }
 
+    function formatTime(totalSeconds: number): string {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    }
+
+    function tick() {
+        const state = gameSettingsStateStore.getState();
+        const paragraph = timeStats.getElementsByTagName("p").item(0)!;
+
+        if (!state.start || state.finish || state.startTimer == null) {
+            stopTimer();
+            return;
+        }
+
+        const elapsedSeconds = Math.floor((Date.now() - state.startTimer) / 1000);
+
+        if (state.mode === 0) {
+            const remaining = Math.max(60 - elapsedSeconds, 0);
+            paragraph.textContent = formatTime(remaining);
+
+            if (remaining <= 0) {
+                gameSettingsStateStore.setState({
+                    start: false,
+                    finish: true,
+                });
+            }
+        } else {
+            paragraph.textContent = formatTime(elapsedSeconds);
+        }
+    }
+
+    function startTimer() {
+        stopTimer();
+        tick();
+        timerInterval = setInterval(tick, 1000);
+    }
+
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
+    function renderStats(state: gameStatsStateProps) {
+        const totalType: number = state.characterRight + state.characterWrong;
+        const accuracy: number = Math.floor((state.characterRight / totalType) * 100);
+        const wpm: number = state.wpm;
+
+        wpmStats.getElementsByTagName("p").item(0)!.textContent = isNaN(wpm) ? "0" : wpm.toString();
+        accuracyStats.getElementsByTagName("p").item(0)!.textContent = isNaN(accuracy)
+            ? "0"
+            : accuracy.toString() + "%";
+    }
+
+    gameStatsStateStore.subscribe(renderStats);
     gameSettingsStateStore.subscribe(render);
 
+    renderStats(gameStatsStateStore.getState());
     render(gameSettingsStateStore.getState());
 
     return mainHeader;
@@ -147,7 +216,7 @@ function selectionElement(props: selectionElementProps): HTMLElement {
         selectionListElement({
             option: value,
             selected: index === 0,
-            event: () =>
+            event: () => {
                 type === "difficulty"
                     ? gameSettingsStateStore.setState({
                           difficulty: index,
@@ -158,7 +227,14 @@ function selectionElement(props: selectionElementProps): HTMLElement {
                           mode: index,
                           start: false,
                           finish: false,
-                      }),
+                      });
+
+                gameStatsStateStore.setState({
+                    characterRight: 0,
+                    characterWrong: 0,
+                    wpm: 0,
+                });
+            },
         }),
     );
 

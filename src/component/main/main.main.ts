@@ -7,7 +7,12 @@ import {
     SVG_ICON_DATA_TYPES,
 } from "../../utils/svg";
 import { button } from "../button";
-import { gameSettingsStateProps, gameSettingsStateStore, gameStatsStateStore } from "./main";
+import {
+    gameSettingsStateProps,
+    gameSettingsStateStore,
+    gameStatsStateProps,
+    gameStatsStateStore,
+} from "./main";
 
 export function mainMain(): HTMLElement {
     const gameState = gameSettingsStateStore.getState();
@@ -19,7 +24,7 @@ export function mainMain(): HTMLElement {
 
     const renderedText: HTMLElement = document.createElement("div");
     renderedText.className =
-        "relative w-full bg-neutral-900 text-3xl leading-10 font-normal tracking-wide";
+        "relative w-full bg-neutral-900 text-3xl leading-10 font-normal tracking-wide cursor-none";
 
     const textInput: HTMLTextAreaElement = document.createElement("textarea");
     textInput.className = "absolute top-0 h-full w-full resize-none opacity-0 cursor-none";
@@ -70,9 +75,18 @@ export function mainMain(): HTMLElement {
             });
         }
 
+        const settingState = gameSettingsStateStore.getState();
+        let wpm = 0;
+
+        if (settingState.startTimer != null) {
+            const elapsedMinutes = (Date.now() - settingState.startTimer) / 60000;
+            wpm = elapsedMinutes > 0 ? Math.round(characterRight / 5 / elapsedMinutes) : 0;
+        }
+
         gameStatsStateStore.setState({
             characterRight: characterRight,
             characterWrong: characterWrong,
+            wpm: wpm,
         });
     });
 
@@ -170,15 +184,11 @@ function finish(): HTMLElement {
     const statsElement: HTMLDivElement = document.createElement("div");
     statsElement.className = `${statsElementClassname.base} ${statsElementClassname.desktop} ${statsElementClassname.mobile}`;
 
-    const stats = [
-        { key: "WPM", value: "85" },
-        { key: "Accuracy", value: "100%" },
-        { key: "Characters", value: "120/5" },
-    ];
+    const wpmStats: HTMLDivElement = statsList({ heading: "WPM", value: "0" });
+    const accuracyStats: HTMLDivElement = statsList({ heading: "Accuracy", value: "0%" });
+    const charactersStats: HTMLDivElement = statsList({ heading: "Characters", value: "0/0" });
 
-    const stasListElement: HTMLDivElement[] = stats.map((stat) =>
-        statsList({ heading: stat.key, value: stat.value }),
-    );
+    statsElement.append(wpmStats, accuracyStats, charactersStats);
 
     interface statsListElementProps {
         heading: string;
@@ -212,16 +222,37 @@ function finish(): HTMLElement {
         classname: "bg-neutral-0 p-4 text-neutral-800",
         text: finishData.completed.buttonText,
         trailingIcon: ICON_RESTART(true),
-        event: () =>
+        event: () => {
             gameSettingsStateStore.setState({
                 start: false,
                 finish: false,
-            }),
+            });
+            gameStatsStateStore.setState({
+                characterRight: 0,
+                characterWrong: 0,
+                wpm: 0,
+            });
+        },
     });
 
     textContainer.append(heading, paragraph);
-    statsElement.append(...stasListElement);
     finishElement.append(logoContainer, textContainer, statsElement, buttonElement);
+
+    function renderStats(state: gameStatsStateProps) {
+        const totalType: number = state.characterRight + state.characterWrong;
+        const accuracy: number = Math.floor((state.characterRight / totalType) * 100);
+        const wpm: number = state.wpm;
+
+        wpmStats.getElementsByTagName("p").item(0)!.textContent = isNaN(wpm) ? "0" : wpm.toString();
+        accuracyStats.getElementsByTagName("p").item(0)!.textContent = isNaN(accuracy)
+            ? "0"
+            : accuracy.toString() + "%";
+        charactersStats.getElementsByTagName("p").item(0)!.innerHTML =
+            `<span class="text-green-500">${state.characterRight}</span>/<span class="text-red-500">${state.characterWrong}</span>`;
+    }
+
+    gameStatsStateStore.subscribe(renderStats);
+    renderStats(gameStatsStateStore.getState());
 
     return finishElement;
 }
@@ -263,6 +294,7 @@ function start(): HTMLElement {
                 start: true,
                 finish: false,
                 text: text,
+                startTimer: Date.now(),
             });
         },
     });

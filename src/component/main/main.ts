@@ -10,6 +10,7 @@ export interface gameSettingsStateProps {
     difficulty: number;
     mode: number;
     text: string;
+    startTimer: number;
 }
 
 const gameSettingsState: gameSettingsStateProps = {
@@ -18,6 +19,7 @@ const gameSettingsState: gameSettingsStateProps = {
     difficulty: 0,
     mode: 0,
     text: "",
+    startTimer: Date.now(),
 };
 
 export const gameSettingsStateStore = store<gameSettingsStateProps>(gameSettingsState);
@@ -25,11 +27,13 @@ export const gameSettingsStateStore = store<gameSettingsStateProps>(gameSettings
 export interface gameStatsStateProps {
     characterRight: number;
     characterWrong: number;
+    wpm: number;
 }
 
 const gameStatsState: gameStatsStateProps = {
     characterRight: 0,
     characterWrong: 0,
+    wpm: 0,
 };
 
 export const gameStatsStateStore = store<gameStatsStateProps>(gameStatsState);
